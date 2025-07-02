@@ -21,3 +21,24 @@ cc_library(
         "//lib/roo_time",
     ],
 )
+
+# For unit tests.
+cc_library(
+    name = "testing",
+    visibility = ["//visibility:public"],
+    srcs = glob(
+        [
+            "src/**/*.h",
+        ],
+        exclude = ["test/**"],
+    ),
+    includes = [
+        "src",
+    ],
+    defines = [
+        "ROO_THREADS_USE_CPPSTD",
+    ],
+    deps = [
+        "//lib/roo_time:core",
+    ],
+)
