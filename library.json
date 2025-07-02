@@ -21,5 +21,8 @@
     "build": {
         "srcDir": "src",
         "srcFilter": "+<*> -<examples> -<test>"
+    },
+    "dependencies": {
+        "dejwk/roo_time": ">=1.1.2"
     }
 }

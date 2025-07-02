@@ -18,5 +18,6 @@ cc_library(
     deps = [
         "//roo_testing:arduino",
         "//roo_testing/sys",
+        "//lib/roo_time",
     ],
 )
