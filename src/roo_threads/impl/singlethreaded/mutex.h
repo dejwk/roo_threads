@@ -5,6 +5,9 @@
 
 #ifdef ROO_THREADS_SINGLETHREADED
 
+#include "roo_backport.h"
+#include "roo_backport/move.h"
+
 namespace roo_threads {
 namespace singlethreaded {
 
@@ -103,7 +106,7 @@ class unique_lock {
   unique_lock& operator=(unique_lock&& lock) noexcept {
     if (owns_) unlock();
 
-    unique_lock(std::move(lock)).swap(*this);
+    unique_lock(roo::move(lock)).swap(*this);
 
     lock.lock_ = 0;
     lock.owns_ = false;
