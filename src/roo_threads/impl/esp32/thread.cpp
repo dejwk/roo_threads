@@ -2,10 +2,13 @@
 
 #ifdef ROO_THREADS_USE_ESP32
 
+#include "assert.h"
+#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
-#include "roo_logging.h"
+
+static const char *TAG = "roo_threads";
 
 namespace roo_threads {
 namespace esp32 {
@@ -24,10 +27,10 @@ thread::attributes::attributes()
       priority_(1),
       name_("roo_thread") {}
 
-thread::~thread() { CHECK(!joinable()); }
+thread::~thread() { assert(!joinable()); }
 
 thread& thread::operator=(thread&& other) noexcept {
-  CHECK(!joinable());
+  assert(!joinable());
   swap(other);
   return *this;
 }
@@ -55,7 +58,7 @@ thread::id thread::get_id() const noexcept {
 void thread::start(const attributes& attributes,
                    std::unique_ptr<VirtualCallable> start) {
   thread_state* state = new thread_state;
-  CHECK_NOTNULL(state);
+  assert(state != nullptr);
   state->attr = attributes;
   state->start = std::move(start);
   if (state->attr.joinable()) {
@@ -68,7 +71,7 @@ void thread::start(const attributes& attributes,
                   (void*)state, state->attr.priority(),
                   &state->task) != pdPASS) {
     delete state;
-    LOG(FATAL) << "Failed to create a new thread";
+    ESP_LOGE(TAG, "Failed to create a new thread");
   }
   state_ = state;
   xTaskResumeAll();
@@ -76,13 +79,13 @@ void thread::start(const attributes& attributes,
 
 void thread::join() {
   thread_state* state = state_;
-  CHECK(state != nullptr) << "Attempting to join a null thread";
-  CHECK(state->attr.joinable()) << "Attempting to join a non-joinable thread";
+  assert(state != nullptr);
+  assert(state->attr.joinable());
   if (xSemaphoreTake((SemaphoreHandle_t)&state->join_mutex, 0) != pdPASS) {
-    LOG(FATAL) << "Another thread has already joined the requested thread";
+    ESP_LOGE(TAG, "Another thread has already joined the requested thread");
   }
   if (this_thread::get_id() == get_id()) {
-    LOG(FATAL) << "Thread attempting to join itself";
+    ESP_LOGE(TAG, "Thread attempting to join itself");
   }
 
   // Wait for the joined thread to finish.
