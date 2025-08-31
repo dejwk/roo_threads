@@ -8,7 +8,7 @@
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 
-static const char *TAG = "roo_threads";
+static const char* TAG = "roo_threads";
 
 namespace roo_threads {
 namespace esp32 {
@@ -116,11 +116,10 @@ thread::id get_id() noexcept {
 void yield() noexcept { vPortYield(); }
 
 void sleep_for(const roo_time::Interval& duration) {
-  uint64_t us = duration.inMicros();
-  const TickType_t delay = (us + 999999) * configTICK_RATE_HZ / 1000000;
-  if (delay > 0) {
-    vTaskDelay(delay);
-  }
+  // vTaskDelay((duration.inMicros() + 1000000 / configTICK_RATE_HZ - 1) *
+  //            configTICK_RATE_HZ / 1000000);
+  vTaskDelay((duration.inMillisRoundedUp() + portTICK_PERIOD_MS - 1) /
+             portTICK_PERIOD_MS);
 }
 
 void sleep_until(const roo_time::Uptime& when) {
