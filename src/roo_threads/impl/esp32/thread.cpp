@@ -25,7 +25,8 @@ struct thread_state {
 thread::attributes::attributes()
     : stack_size_(configMINIMAL_STACK_SIZE * sizeof(portSTACK_TYPE)),
       priority_(1),
-      name_("roo_thread") {}
+      name_("roo_thread"),
+      joinable_(true) {}
 
 thread::~thread() { assert(!joinable()); }
 
@@ -38,6 +39,7 @@ thread& thread::operator=(thread&& other) noexcept {
 static void run_thread(void* arg) {
   thread_state* p = (thread_state*)arg;
   p->start->call();
+  // Termination - block until we're joined.
   vTaskSuspendAll();
   if (p->attr.joinable()) {
     xSemaphoreGive((SemaphoreHandle_t)&p->join_barrier);
@@ -66,14 +68,15 @@ void thread::start(const attributes& attributes,
     xSemaphoreCreateBinaryStatic(&state->join_barrier);
   }
   vTaskSuspendAll();
+  state_ = state;
   if (xTaskCreate(run_thread, state->attr.name(),
                   (uint16_t)(state->attr.stack_size() / sizeof(portSTACK_TYPE)),
                   (void*)state, state->attr.priority(),
                   &state->task) != pdPASS) {
     delete state;
+    state_ = nullptr;
     ESP_LOGE(TAG, "Failed to create a new thread");
   }
-  state_ = state;
   xTaskResumeAll();
 }
 
