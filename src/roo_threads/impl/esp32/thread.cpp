@@ -88,13 +88,17 @@ void thread::start(const attributes& attributes,
 
 void thread::join() {
   thread_state* state = state_;
-  assert(state != nullptr);
-  assert(state->attr.joinable());
-  if (xSemaphoreTake((SemaphoreHandle_t)&state->join_mutex, 0) != pdPASS) {
-    ESP_LOGE(TAG, "Another thread has already joined the requested thread");
+  if (state == nullptr) {
+    ESP_LOGE(TAG, "Thread joined for the second time");
+    return;
   }
+  assert(state->attr.joinable());
   if (this_thread::get_id() == get_id()) {
     ESP_LOGE(TAG, "Thread attempting to join itself");
+    return;
+  }
+  if (xSemaphoreTake((SemaphoreHandle_t)&state->join_mutex, 0) != pdPASS) {
+    ESP_LOGE(TAG, "Another thread has already joined the requested thread");
   }
 
   // Wait for the joined thread to finish.
@@ -125,16 +129,16 @@ thread::id get_id() noexcept {
 void yield() noexcept { vPortYield(); }
 
 void sleep_for(const roo_time::Interval& duration) {
-  // vTaskDelay((duration.inMicros() + 1000000 / configTICK_RATE_HZ - 1) *
-  //            configTICK_RATE_HZ / 1000000);
-  vTaskDelay((duration.inMillisRoundedUp() + portTICK_PERIOD_MS - 1) /
-             portTICK_PERIOD_MS);
+  sleep_until(roo_time::Uptime::Now() + duration);
 }
 
 void sleep_until(const roo_time::Uptime& when) {
-  roo_time::Uptime now = roo_time::Uptime::Now();
-  if (when > now) {
-    sleep_for(when - now);
+  while (true) {
+    roo_time::Uptime now = roo_time::Uptime::Now();
+    if (when <= now) return;
+    roo_time::Interval delta = when - now;
+    vTaskDelay((delta.inMillisRoundedUp() + portTICK_PERIOD_MS - 1) /
+               portTICK_PERIOD_MS);
   }
 }
 
