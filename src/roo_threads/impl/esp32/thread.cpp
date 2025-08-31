@@ -108,9 +108,9 @@ void thread::join() {
 namespace this_thread {
 
 thread::id get_id() noexcept {
-  TaskStatus_t* pxTaskStatus;
-  vTaskGetInfo(nullptr, pxTaskStatus, pdFALSE, eRunning);
-  return (intptr_t)pxTaskStatus->xHandle;
+  TaskStatus_t task_status;
+  vTaskGetInfo(nullptr, &task_status, pdFALSE, eRunning);
+  return (intptr_t)task_status.xHandle;
 }
 
 void yield() noexcept { vPortYield(); }
