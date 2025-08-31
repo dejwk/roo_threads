@@ -16,6 +16,16 @@ using lock_guard = ::roo_threads::cppstd::lock_guard<Mutex>;
 template <typename Mutex>
 using unique_lock = ::roo_threads::cppstd::unique_lock<Mutex>;
 
+using defer_lock_t = ::roo_threads::cppstd::defer_lock_t;
+using try_to_lock_t = ::roo_threads::cppstd::try_to_lock_t;
+using adopt_lock_t = ::roo_threads::cppstd::adopt_lock_t;
+
+// Tags for the unique_lock constructor.
+
+inline constexpr defer_lock_t defer_lock{};
+inline constexpr try_to_lock_t try_to_lock{};
+inline constexpr adopt_lock_t adopt_lock{};
+
 }  // namespace roo
 
 #elif (defined ROO_THREADS_USE_ROO_TESTING)
@@ -31,6 +41,16 @@ using lock_guard = ::roo_threads::roo_testing::lock_guard<Mutex>;
 
 template <typename Mutex>
 using unique_lock = ::roo_threads::roo_testing::unique_lock<Mutex>;
+
+using defer_lock_t = ::roo_threads::roo_testing::defer_lock_t;
+using try_to_lock_t = ::roo_threads::roo_testing::try_to_lock_t;
+using adopt_lock_t = ::roo_threads::roo_testing::adopt_lock_t;
+
+// Tags for the unique_lock constructor.
+
+inline constexpr defer_lock_t defer_lock{};
+inline constexpr try_to_lock_t try_to_lock{};
+inline constexpr adopt_lock_t adopt_lock{};
 
 }  // namespace roo
 
