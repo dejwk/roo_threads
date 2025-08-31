@@ -25,8 +25,14 @@ struct thread_state {
 thread::attributes::attributes()
     : stack_size_(configMINIMAL_STACK_SIZE * sizeof(portSTACK_TYPE)),
       priority_(1),
-      name_("roo_thread"),
-      joinable_(true) {}
+      joinable_(true),
+      name_("roo_thread") {}
+
+thread::thread() noexcept : state_(nullptr) {}
+
+thread::thread(thread&& other) noexcept : state_(other.state_) {
+  other.state_ = nullptr;
+}
 
 thread::~thread() { assert(!joinable()); }
 

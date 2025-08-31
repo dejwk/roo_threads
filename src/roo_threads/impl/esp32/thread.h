@@ -47,11 +47,11 @@ class thread {
     const char* name_;
   };
 
-  thread() noexcept = default;
+  thread() noexcept;
 
   thread(const thread&) = delete;
 
-  thread(thread&& other) noexcept { swap(other); }
+  thread(thread&& other) noexcept;
 
   template <typename Callable, typename... Args,
             typename = typename std::enable_if<
