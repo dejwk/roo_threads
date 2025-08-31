@@ -2,6 +2,7 @@
 
 #include "roo_threads/impl/resolve.h"
 #include "roo_time.h"
+#include "roo_threads/mutex.h"
 
 #ifdef ROO_THREADS_USE_ROO_TESTING
 

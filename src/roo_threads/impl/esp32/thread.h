@@ -22,6 +22,7 @@ class thread {
  public:
   using id = intptr_t;
 
+  // Note: attributes are a non-portable extension.
   class attributes {
    public:
     attributes();
@@ -53,19 +54,22 @@ class thread {
   thread(thread&& other) noexcept { swap(other); }
 
   template <typename Callable, typename... Args,
-            typename std::enable_if<
-                !std::is_same<Callable, thread::attributes>::value>::type>
+            typename = typename std::enable_if<
+                !std::is_same<Callable, thread::attributes&>::value>::type,
+            typename = typename std::enable_if<
+                !std::is_same<Callable, thread>::value>::type>
   explicit thread(Callable&& callable, Args&&... args) {
     static_assert(std::is_invocable<typename std::decay<Callable>::type,
                                     typename std::decay<Args>::type...>::value,
                   "roo::thread argument must be invocable");
-
     start(attributes(),
           MakeDynamicCallableWithArgs(std::forward<Callable>(callable),
                                       std::forward<Args>(args)...));
   }
 
-  template <typename Callable, typename... Args>
+  template <typename Callable, typename... Args,
+            typename = typename std::enable_if<
+                !std::is_same<Callable, thread>::value>::type>
   explicit thread(const attributes& attrs, Callable&& callable,
                   Args&&... args) {
     static_assert(std::is_invocable<typename std::decay<Callable>::type,
