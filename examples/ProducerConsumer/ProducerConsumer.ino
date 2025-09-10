@@ -51,7 +51,6 @@ void run(Queue* queue, int tag, roo_time::Interval interval) {
     queue->put(Queue::Item{tag, val});
     Serial.printf("Published: %d.%d\n", tag, val);
     ++val;
-    Serial.flush();
     roo::this_thread::sleep_for(interval);
   }
 }
@@ -72,5 +71,4 @@ void loop() {
   Queue::Item item = queue.take();
   Serial.printf("                       Consumed: %d.%d\n", item.tag,
                 item.value);
-  Serial.flush();
 }
