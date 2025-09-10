@@ -4,6 +4,7 @@
 
 #include "assert.h"
 #include "esp_log.h"
+#include "esp_pthread.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
@@ -23,10 +24,17 @@ struct thread_state {
 };
 
 thread::attributes::attributes()
-    : stack_size_(configMINIMAL_STACK_SIZE * sizeof(portSTACK_TYPE)),
-      priority_(1),
+    : stack_size_(CONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT),
+      priority_(CONFIG_PTHREAD_TASK_PRIO_DEFAULT),
       joinable_(true),
-      name_("roo_thread") {}
+      name_(CONFIG_PTHREAD_TASK_NAME_DEFAULT) {
+  esp_pthread_cfg_t current_cfg;
+  if (esp_pthread_get_cfg(&current_cfg) == ESP_OK && current_cfg.inherit_cfg) {
+    stack_size_ = current_cfg.stack_size;
+    priority_ = current_cfg.prio;
+    name_ = current_cfg.thread_name;
+  }
+}
 
 thread::thread() noexcept : state_(nullptr) {}
 
