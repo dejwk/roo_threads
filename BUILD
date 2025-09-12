@@ -2,43 +2,53 @@
 
 cc_library(
     name = "roo_threads",
-    visibility = ["//visibility:public"],
     srcs = glob(
         [
             "src/**/*.h",
+            "src/**/*.cpp",
         ],
         exclude = ["test/**"],
     ),
-    includes = [
-        "src",
-    ],
     defines = [
         "ROO_TESTING",
     ],
-    deps = [
-        "//roo_testing:arduino",
-        "//roo_testing/sys",
-        "//lib/roo_time",
-    ],
-)
-
-# For unit tests.
-cc_library(
-    name = "testing",
-    visibility = ["//visibility:public"],
-    srcs = glob(
-        [
-            "src/**/*.h",
-        ],
-        exclude = ["test/**"],
-    ),
     includes = [
         "src",
     ],
-    defines = [
-        "ROO_THREADS_USE_CPPSTD",
-    ],
+    visibility = ["//visibility:public"],
     deps = [
-        "//lib/roo_time:core",
+        "@roo_testing//roo_testing:arduino",
+        "@roo_testing//roo_testing/sys",
+        "@roo_time",
+    ],
+)
+
+cc_test(
+    name = "mutex_test",
+    srcs = ["test/mutex_test.cpp"],
+    linkstatic = 1,
+    deps = [
+        ":roo_threads",
+        "@roo_testing//roo_testing:arduino_gtest_main",
+    ],
+)
+
+cc_test(
+    name = "condition_variable_test",
+    srcs = ["test/condition_variable_test.cpp"],
+    linkstatic = 1,
+    deps = [
+        ":roo_threads",
+        "@roo_testing//roo_testing:arduino_gtest_main",
+    ],
+)
+
+cc_test(
+    name = "thread_test",
+    srcs = ["test/thread_test.cpp"],
+    linkstatic = 1,
+    deps = [
+        ":roo_threads",
+        "@roo_testing//roo_testing:arduino_gtest_main",
     ],
 )
