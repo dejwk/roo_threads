@@ -1,9 +1,5 @@
 #include "roo_threads/condition_variable.h"
 
-// #include <atomic>
-// #include <chrono>
-// #include <thread>
-
 #include "gtest/gtest.h"
 #include "roo_threads/condition_variable.h"
 #include "roo_threads/mutex.h"
@@ -60,7 +56,6 @@ TEST(ConditionVariableTest, NotifiesAllThreads) {
 TEST(ConditionVariableTest, WaitForTimesOut) {
   roo::mutex m;
   roo::condition_variable cv;
-  bool ready = false;
 
   std::atomic<bool> timed_out{false};
   roo::thread t([&] {
@@ -79,7 +74,6 @@ TEST(ConditionVariableTest, WaitForTimesOut) {
 TEST(ConditionVariableTest, WaitForNotifiesBeforeTimeout) {
   roo::mutex m;
   roo::condition_variable cv;
-  bool ready = false;
 
   std::atomic<bool> started{false};
   std::atomic<bool> notified{false};
