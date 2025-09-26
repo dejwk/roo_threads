@@ -87,6 +87,21 @@ TEST(Thread, ThreadWithCustomAttributes) {
   EXPECT_TRUE(ran.load());
 }
 
+roo::thread::attributes CreateAttr() {
+  roo::thread::attributes attr;
+  attr.set_stack_size(2048);
+  attr.set_priority(2);
+  attr.set_name("custom_thread");
+  return attr;
+}
+
+TEST(Thread, ThreadWithCustomAttributesByValue) {
+  std::atomic<bool> ran{false};
+  roo::thread t(CreateAttr(), [&] { ran = true; });
+  t.join();
+  EXPECT_TRUE(ran.load());
+}
+
 TEST(Thread, CannotJoinTwice) {
   roo::thread t([] {});
   t.join();
