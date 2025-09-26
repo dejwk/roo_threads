@@ -28,6 +28,11 @@ thread::attributes::attributes()
       priority_(CONFIG_PTHREAD_TASK_PRIO_DEFAULT),
       joinable_(true),
       name_(CONFIG_PTHREAD_TASK_NAME_DEFAULT) {
+  if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED) {
+    // Thie init code is causing problems on ESP32-C3 when called from a static
+    // initializer. Just use global defaults.
+    return;
+  }
   esp_pthread_cfg_t current_cfg;
   if (esp_pthread_get_cfg(&current_cfg) == ESP_OK && current_cfg.inherit_cfg) {
     stack_size_ = current_cfg.stack_size;
@@ -81,7 +86,8 @@ void thread::start(const attributes& attributes,
     xSemaphoreCreateMutexStatic(&state->join_mutex);
     xSemaphoreCreateBinaryStatic(&state->join_barrier);
   }
-  vTaskSuspendAll();
+  bool scheduler_running = (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING);
+  if (scheduler_running) vTaskSuspendAll();
   state_ = state;
   if (xTaskCreate(run_thread, state->attr.name(),
                   (uint16_t)(state->attr.stack_size() / sizeof(portSTACK_TYPE)),
@@ -91,7 +97,7 @@ void thread::start(const attributes& attributes,
     state_ = nullptr;
     ESP_LOGE(TAG, "Failed to create a new thread");
   }
-  xTaskResumeAll();
+  if (scheduler_running) xTaskResumeAll();
 }
 
 void thread::join() {
