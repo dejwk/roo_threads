@@ -53,11 +53,12 @@ class thread {
 
   thread(thread&& other) noexcept;
 
-  template <typename Callable, typename... Args,
-            typename = typename std::enable_if<
-                !std::is_same<Callable, thread::attributes&>::value>::type,
-            typename = typename std::enable_if<
-                !std::is_same<Callable, thread>::value>::type>
+  template <
+      typename Callable, typename... Args,
+      typename = typename std::enable_if<!std::is_same<
+          std::remove_reference_t<Callable>, thread::attributes>::value>::type,
+      typename =
+          typename std::enable_if<!std::is_same<Callable, thread>::value>::type>
   explicit thread(Callable&& callable, Args&&... args) {
     static_assert(std::is_invocable<typename std::decay<Callable>::type,
                                     typename std::decay<Args>::type...>::value,
