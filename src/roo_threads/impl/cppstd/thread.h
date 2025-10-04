@@ -19,7 +19,17 @@ inline thread::id get_id() noexcept { return std::this_thread::get_id(); }
 inline void yield() noexcept { std::this_thread::yield(); }
 
 inline void sleep_for(const roo_time::Interval& duration) {
-  std::this_thread::sleep_for(std::chrono::microseconds(duration.inMicros()));
+  static constexpr auto kMaxSafeWaitDelay =
+      std::chrono::microseconds(10LL * 24 * 3600 * 1000000);
+  auto delay = std::chrono::microseconds(duration.inMicros());
+  if (delay > kMaxSafeWaitDelay) {
+    // Protecting against overflow, e.g. wait_for(roo_time::Interval::Max()):
+    // never wait for longer than 10 days; spuriously wake up if needed.
+    // Using safely low max duration of 10 days, as ESP32 seems to overflow at
+    // about 24 days.
+    delay = kMaxSafeWaitDelay;
+  }
+  std::this_thread::sleep_for(delay);
 }
 
 inline void sleep_until(const roo_time::Uptime& when) {
