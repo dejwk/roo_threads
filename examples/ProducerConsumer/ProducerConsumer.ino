@@ -45,13 +45,13 @@ class Queue {
   roo::condition_variable nonempty_;
 };
 
-void run(Queue* queue, int tag, roo_time::Interval interval) {
+void run(Queue* queue, int tag, roo_time::Duration duration) {
   int val = 0;
   while (true) {
     queue->put(Queue::Item{tag, val});
     Serial.printf("Published: %d.%d\n", tag, val);
     ++val;
-    roo::this_thread::sleep_for(interval);
+    roo::this_thread::sleep_for(duration);
   }
 }
 

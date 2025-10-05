@@ -58,7 +58,7 @@ thread::id get_id() noexcept { return thread::id(1); }
 
 void yield() noexcept;  // Left unimplemented.
 
-inline void sleep_for(const roo_time::Interval& duration) {
+inline void sleep_for(const roo_time::Duration& duration) {
   if (duration.inMicros() <= 0) return;
   roo_time::Delay(duration);
 }

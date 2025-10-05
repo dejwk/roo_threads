@@ -51,7 +51,7 @@ class unique_lock {
   unique_lock(mutex_type& mutex, roo_time::Uptime tp)
       : lock_(mutex, tp - roo_time::Uptime::Now()) {}
 
-  unique_lock(mutex_type& mutex, roo_time::Interval duration)
+  unique_lock(mutex_type& mutex, roo_time::Duration duration)
       : lock_(mutex, std::chrono::microseconds(duration.inMicros())) {}
 
   unique_lock(const unique_lock&) = delete;
@@ -72,7 +72,7 @@ class unique_lock {
     return try_lock_for(tp - roo_time::Uptime::Now());
   }
 
-  bool try_lock_for(roo_time::Interval duration) {
+  bool try_lock_for(roo_time::Duration duration) {
     return lock_.try_lock_for(std::chrono::microseconds(duration.inMicros()));
   }
 

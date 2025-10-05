@@ -142,7 +142,7 @@ thread::id get_id() noexcept {
 
 void yield() noexcept { vPortYield(); }
 
-void sleep_for(const roo_time::Interval& duration) {
+void sleep_for(const roo_time::Duration& duration) {
   sleep_until(roo_time::Uptime::Now() + duration);
 }
 
@@ -150,7 +150,7 @@ void sleep_until(const roo_time::Uptime& when) {
   while (true) {
     roo_time::Uptime now = roo_time::Uptime::Now();
     if (when <= now) return;
-    roo_time::Interval delta = when - now;
+    roo_time::Duration delta = when - now;
     vTaskDelay((delta.inMillisRoundedUp() + portTICK_PERIOD_MS - 1) /
                portTICK_PERIOD_MS);
   }

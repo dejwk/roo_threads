@@ -44,10 +44,10 @@ class condition_variable {
   }
 
   cv_status wait_for(unique_lock<mutex>& lock,
-                     const roo_time::Interval& duration) {
+                     const roo_time::Duration& duration) {
     static constexpr int64_t kMaxSafeWaitMicros = 10LL * 24 * 3600 * 1000000;
     if (duration.inMicros() >= kMaxSafeWaitMicros) {
-      // Protecting against overflow, e.g. wait_for(roo_time::Interval::Max()):
+      // Protecting against overflow, e.g. wait_for(roo_time::Duration::Max()):
       // never wait for longer than 10 days; spuriously wake up if needed.
       // Using safely low max duration of 10 days, as ESP32 seems to overflow at
       // about 24 days.
@@ -62,9 +62,9 @@ class condition_variable {
   }
 
   template <typename Predicate>
-  bool wait_for(unique_lock<mutex>& lock, const roo_time::Interval& duration,
+  bool wait_for(unique_lock<mutex>& lock, const roo_time::Duration& duration,
                 Predicate p) {
-    // Protecting against overflow, e.g. wait_for(roo_time::Interval::Max()):
+    // Protecting against overflow, e.g. wait_for(roo_time::Duration::Max()):
     // never wait for longer than 10 days; spuriously wake up if needed.
     // Using safely low max duration of 10 days, as ESP32 seems to overflow at
     // about 24 days.

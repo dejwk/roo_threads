@@ -45,13 +45,13 @@ class condition_variable {
   }
 
   cv_status wait_for(unique_lock<mutex>& lock,
-                     const roo_time::Interval& duration) {
+                     const roo_time::Duration& duration) {
     roo_time::Delay(duration);
     return cv_status::timeout;
   }
 
   template <typename Predicate>
-  bool wait_for(unique_lock<mutex>& lock, const roo_time::Interval& duration,
+  bool wait_for(unique_lock<mutex>& lock, const roo_time::Duration& duration,
                 Predicate p) {
     return wait_until(lock, roo_time::Uptime::Now() + duration, p);
   }

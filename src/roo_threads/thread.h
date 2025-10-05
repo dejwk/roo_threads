@@ -18,7 +18,7 @@ inline thread::id get_id() noexcept {
 
 inline void yield() noexcept { roo_threads::esp32::this_thread::yield(); }
 
-inline void sleep_for(const roo_time::Interval& duration) {
+inline void sleep_for(const roo_time::Duration& duration) {
   roo_threads::esp32::this_thread::sleep_for(duration);
 }
 
@@ -46,7 +46,7 @@ inline thread::id get_id() noexcept {
 
 inline void yield() noexcept { roo_threads::cppstd::this_thread::yield(); }
 
-inline void sleep_for(const roo_time::Interval& duration) {
+inline void sleep_for(const roo_time::Duration& duration) {
   roo_threads::cppstd::this_thread::sleep_for(duration);
 }
 
@@ -74,7 +74,7 @@ inline thread::id get_id() noexcept {
 
 inline void yield() noexcept { roo_threads::roo_testing::this_thread::yield(); }
 
-inline void sleep_for(const roo_time::Interval& duration) {
+inline void sleep_for(const roo_time::Duration& duration) {
   roo_threads::roo_testing::this_thread::sleep_for(duration);
 }
 
@@ -104,7 +104,7 @@ inline void yield() noexcept {
   roo_threads::singlethreaded::this_thread::yield();
 }
 
-inline void sleep_for(const roo_time::Interval& duration) {
+inline void sleep_for(const roo_time::Duration& duration) {
   roo_threads::singlethreaded::this_thread::sleep_for(duration);
 }
 

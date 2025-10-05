@@ -109,7 +109,7 @@ thread::id get_id() noexcept;
 
 void yield() noexcept;
 
-void sleep_for(const roo_time::Interval& duration);
+void sleep_for(const roo_time::Duration& duration);
 
 void sleep_until(const roo_time::Uptime& when);
 

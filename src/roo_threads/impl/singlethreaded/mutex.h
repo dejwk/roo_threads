@@ -87,7 +87,7 @@ class unique_lock {
       : lock_(&mutex), owns_(lock_->try_lock_until(tp)) {}
 
   unique_lock(mutex_type& mutex,
-              const roo_time::Interval& duration)
+              const roo_time::Duration& duration)
       : lock_(&mutex), owns_(lock_->try_lock_for(duration)) {}
 
   ~unique_lock() {
@@ -129,7 +129,7 @@ class unique_lock {
     return owns_;
   }
 
-  bool try_lock_for(const roo_time::Interval& duration) {
+  bool try_lock_for(const roo_time::Duration& duration) {
     owns_ = lock_->try_lock_for(duration);
     return owns_;
   }

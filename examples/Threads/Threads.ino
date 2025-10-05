@@ -6,7 +6,7 @@ roo::thread t1;
 roo::thread t2;
 roo::thread t3;
 
-void run(const char* name, roo_time::Interval freq) {
+void run(const char* name, roo_time::Duration freq) {
   while (true) {
     Serial.printf("%ld: %s\n", millis(), name);
     Serial.flush();
