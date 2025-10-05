@@ -80,12 +80,54 @@ TEST(ConditionVariableTest, WaitForNotifiesBeforeTimeout) {
   roo::thread t([&] {
     roo::unique_lock<roo::mutex> lock(m);
     started = true;
-    notified =
-        (cv.wait_for(lock, roo_time::Seconds(10)) == roo::cv_status::no_timeout);
+    notified = (cv.wait_for(lock, roo_time::Seconds(10)) ==
+                roo::cv_status::no_timeout);
   });
 
   // Let's give the worker some time to start and block on the CV.
   roo::this_thread::sleep_for(roo_time::Millis(50));
+  cv.notify_one();
+  t.join();
+  EXPECT_TRUE(notified);
+}
+
+TEST(ConditionVariableTest, WaitForDoesNotOverflow) {
+  roo::mutex m;
+  roo::condition_variable cv;
+
+  std::atomic<bool> started{false};
+  std::atomic<bool> notified{false};
+  roo::thread t([&] {
+    roo::unique_lock<roo::mutex> lock(m);
+    started = true;
+    notified = (cv.wait_for(lock, roo_time::Micros(0x7FFFFFFFFFFFFFFE)) ==
+                roo::cv_status::no_timeout);
+  });
+
+  // Let's give the worker some time to start and block on the CV.
+  roo::this_thread::sleep_for(roo_time::Millis(50));
+  cv.notify_one();
+  t.join();
+  EXPECT_TRUE(notified);
+}
+
+TEST(ConditionVariableTest, WaitForWithPredicateDoesNotOverflow) {
+  roo::mutex m;
+  roo::condition_variable cv;
+
+  std::atomic<bool> started{false};
+  std::atomic<bool> notified{false};
+  std::atomic<bool> ready{false};
+  roo::thread t([&] {
+    roo::unique_lock<roo::mutex> lock(m);
+    started = true;
+    notified = cv.wait_for(lock, roo_time::Micros(0x7FFFFFFFFFFFFFFE),
+                           [&] { return ready.load(); });
+  });
+
+  // Let's give the worker some time to start and block on the CV.
+  roo::this_thread::sleep_for(roo_time::Millis(50));
+  ready = true;
   cv.notify_one();
   t.join();
   EXPECT_TRUE(notified);
