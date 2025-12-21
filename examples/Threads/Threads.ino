@@ -8,7 +8,10 @@ roo::thread t3;
 
 void run(const char* name, roo_time::Duration freq) {
   while (true) {
-    Serial.printf("%ld: %s\n", millis(), name);
+    Serial.print(millis());
+    Serial.print(": ");
+    Serial.println(name);
+
     Serial.flush();
     roo::this_thread::sleep_for(freq);
     // Or, equivalently:
@@ -25,5 +28,6 @@ void setup() {
 
 void loop() {
   roo::this_thread::sleep_for(roo_time::Seconds(10));
-    Serial.printf("%ld: loop\n", millis());
+    Serial.print(millis());
+    Serial.print(": loop");
 }
