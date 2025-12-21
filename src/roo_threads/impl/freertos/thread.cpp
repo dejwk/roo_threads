@@ -2,13 +2,13 @@
 
 #ifdef ROO_THREADS_USE_FREERTOS
 
+#include <assert.h>
+
 #include "roo_threads/impl/freertos/thread.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
-// #include "glog/logging.h"
-// #include "roo_testing/system/timer.h"
 
 namespace roo_threads {
 namespace freertos {
@@ -34,11 +34,11 @@ struct thread_state {
 }  // namespace
 
 thread::~thread() {
-  //  CHECK(!joinable());
+  assert(!joinable());
 }
 
 thread& thread::operator=(thread&& other) noexcept {
-  //   CHECK(!joinable());
+  assert(!joinable());
   swap(other);
   return *this;
 }
@@ -69,7 +69,7 @@ static void run_thread(void* arg) {
 void thread::start(const attributes& attributes,
                    std::unique_ptr<internal::VirtualCallable> start) {
   thread_state* state = new thread_state;
-  //   CHECK_NOTNULL(state);
+  assert(state != nullptr);
   state->attr = attributes;
   state->start = std::move(start);
   if (state->attr.joinable()) {
@@ -82,7 +82,7 @@ void thread::start(const attributes& attributes,
                   (void*)state, state->attr.priority(),
                   &state->task) != pdPASS) {
     delete state;
-    // LOG(FATAL) << "Failed to create a new thread";
+    assert(false);
   }
   state_ = state;
   xTaskResumeAll();
@@ -90,15 +90,13 @@ void thread::start(const attributes& attributes,
 
 void thread::join() {
   thread_state* state = (thread_state*)state_;
-  //   CHECK(state != nullptr) << "Attempting to join a null thread";
-  //   CHECK(state->attr.joinable()) << "Attempting to join a non-joinable
-  //   thread";
+  assert(state != nullptr);  // Attempting to join a null thread
+  assert (state->attr.joinable());  // Attempting to join a non-joinable thread
   if (xSemaphoreTake((SemaphoreHandle_t)&state->join_mutex, 0) != pdPASS) {
-    //     LOG(FATAL) << "Another thread has already joined the requested
-    //     thread";
+    assert(false);  // Another thread has already joined the requested thread
   }
   if (this_thread::get_id() == state->task) {
-    //     LOG(FATAL) << "Thread attempting to join itself";
+    assert(false);  // Thread attempting to join itself
   }
 
   // Wait for the joined thread to finish.

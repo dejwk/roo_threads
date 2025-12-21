@@ -2,11 +2,12 @@
 
 #ifdef ROO_THREADS_USE_FREERTOS
 
-#include "roo_threads/impl/freertos/mutex.h"
+#include <assert.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "roo_threads/impl/freertos/mutex.h"
 
 namespace roo_threads {
 namespace freertos {
@@ -40,13 +41,10 @@ void mutex::unlock() {
 namespace internal {
 
 void checkLockUnowned(const void* lock, bool owns) {
-//   CHECK_NOTNULL(lock);
-//   CHECK(!owns) << "Deadlock would occur";
+  assert(lock != nullptr && !owns);
 }
 
-void checkLockOwned(bool owns) {
-//   CHECK(owns) << "Lock not owned";
-}
+void checkLockOwned(bool owns) { assert(owns); }
 
 }  // namespace internal
 

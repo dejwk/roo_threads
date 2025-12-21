@@ -2,6 +2,8 @@
 
 #ifdef ROO_THREADS_USE_FREERTOS
 
+#include <assert.h>
+
 #include "roo_threads/impl/freertos/condition_variable.h"
 
 namespace roo_threads {
@@ -70,7 +72,7 @@ void condition_variable::wait(unique_lock<mutex>& lock) noexcept {
   }
   lock.unlock();
   condEXIT_CRITICAL();
-  //   CHECK(queued) << "Maximum number of queued threads reached";
+  assert(queued);  // Checks for maximum number of queued threads reached.
 
   // Wait on the condition variable.
   // bool signaled =
@@ -106,7 +108,7 @@ cv_status condition_variable::wait_until_impl(unique_lock<mutex>& lock,
   lock.unlock();
   condEXIT_CRITICAL();
   cv_status status;
-  //   CHECK(queued) << "Maximum number of queued threads reached";
+  assert(queued);  // Checks for maximum number of queued threads reached.
   // Wait on the condition variable.
   while (true) {
     bool signaled = (xTaskNotifyWait(0, 0, nullptr, delay) == pdPASS);
