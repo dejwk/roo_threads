@@ -7,6 +7,8 @@
 #elif (defined ESP32)
 #define ROO_THREADS_USE_ESP32
 #define ROO_THREADS_USE_CPPSTD
+#elif defined(ARDUINO_ARCH_RP2040)
+#define ROO_THREADS_USE_FREERTOS
 #else
 #define ROO_THREADS_SINGLETHREADED
 #endif

@@ -13,6 +13,17 @@ using condition_variable = ::roo_threads::cppstd::condition_variable;
 
 }  // namespace roo
 
+#elif (defined ROO_THREADS_USE_FREERTOS)
+
+#include "roo_threads/impl/freertos/condition_variable.h"
+
+namespace roo {
+
+using cv_status = ::roo_threads::freertos::cv_status;
+using condition_variable = ::roo_threads::freertos::condition_variable;
+
+}  // namespace roo
+
 #elif (defined ROO_THREADS_USE_ROO_TESTING)
 
 #include "roo_threads/impl/roo_testing/condition_variable.h"

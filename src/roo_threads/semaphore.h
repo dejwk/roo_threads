@@ -16,6 +16,20 @@ using binary_semaphore = roo_threads::cppstd::binary_semaphore;
 
 }  // namespace roo
 
+#elif (defined ROO_THREADS_USE_FREERTOS)
+
+#include "roo_threads/impl/freertos/semaphore.h"
+
+namespace roo {
+
+template <std::ptrdiff_t LeastMaxValue>
+using counting_semaphore =
+    roo_threads::freertos::counting_semaphore<LeastMaxValue>;
+
+using binary_semaphore = roo_threads::freertos::binary_semaphore;
+
+}  // namespace roo
+
 #elif (defined ROO_THREADS_USE_ROO_TESTING)
 
 #include "roo_threads/impl/roo_testing/semaphore.h"

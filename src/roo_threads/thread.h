@@ -58,6 +58,34 @@ inline void sleep_until(const roo_time::Uptime& when) {
 
 }  // namespace roo
 
+#elif (defined ROO_THREADS_USE_FREERTOS)
+
+#include "roo_threads/impl/freertos/thread.h"
+
+namespace roo {
+
+using thread = ::roo_threads::freertos::thread;
+namespace this_thread {
+
+inline thread::id get_id() noexcept {
+  return roo_threads::freertos::this_thread::get_id();
+}
+
+inline void yield() noexcept { roo_threads::freertos::this_thread::yield(); }
+
+inline void sleep_for(const roo_time::Duration& duration) {
+  roo_threads::freertos::this_thread::sleep_for(duration);
+}
+
+inline void sleep_until(const roo_time::Uptime& when) {
+  roo_threads::freertos::this_thread::sleep_until(when);
+}
+
+}  // namespace this_thread
+
+}  // namespace roo
+
+
 #elif (defined ROO_THREADS_USE_ROO_TESTING)
 
 #include "roo_threads/impl/roo_testing/thread.h"
