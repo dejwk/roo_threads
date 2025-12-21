@@ -1,6 +1,6 @@
 // Thread attributes are a non-portable extension. This example demonstrates
 // how to use them to customize thread name, priority, and stack size, on
-// Espressif SOCs (e.g. ESP32, ESP32-S2, ESP32-C3, etc).
+// SOCs using FreeRTOS (e.g. ESP32 family).
 
 #include "Arduino.h"
 #include "freertos/FreeRTOS.h"
@@ -13,7 +13,7 @@ void run(int tid) {
   TaskHandle_t handle = xTaskGetCurrentTaskHandle();
   Serial.print(pcTaskGetName(handle));
   Serial.print(" (0x");
-  Serial.printNumber((intptr_t)handle, 16);
+  Serial.print((intptr_t)handle, HEX);
   Serial.print("): priority: ");
   Serial.print(uxTaskPriorityGet(handle));
   Serial.print(", free stack: ");
