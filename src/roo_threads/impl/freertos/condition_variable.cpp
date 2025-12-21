@@ -7,6 +7,20 @@
 namespace roo_threads {
 namespace freertos {
 
+#if defined(configNUM_CORES)
+#if configNUM_CORES > 1
+static portMUX_TYPE s_cond_lock = portMUX_INITIALIZER_UNLOCKED;
+#define condENTER_CRITICAL() portENTER_CRITICAL(&s_cond_lock)
+#define condEXIT_CRITICAL() portEXIT_CRITICAL(&s_cond_lock)
+#else
+#define condENTER_CRITICAL() vPortEnterCritical()
+#define condEXIT_CRITICAL() vPortExitCritical()
+#endif
+#else
+#define condENTER_CRITICAL() vPortEnterCritical()
+#define condEXIT_CRITICAL() vPortExitCritical()
+#endif
+
 condition_variable::condition_variable() noexcept {
   for (int i = 0; i < kMaxWaitingThreads; ++i) {
     tasks_waiting_[i] = nullptr;
@@ -15,7 +29,7 @@ condition_variable::condition_variable() noexcept {
 
 void condition_variable::notify_one() noexcept {
   TaskHandle_t* task_to_notify = nullptr;
-  taskENTER_CRITICAL();
+  condENTER_CRITICAL();
   for (int i = 0; i < kMaxWaitingThreads; ++i) {
     if (tasks_waiting_[i] != nullptr) {
       if (task_to_notify == nullptr ||
@@ -29,24 +43,24 @@ void condition_variable::notify_one() noexcept {
     xTaskNotify(*task_to_notify, 0, eNoAction);
     *task_to_notify = nullptr;
   }
-  taskEXIT_CRITICAL();
+  condEXIT_CRITICAL();
 }
 
 void condition_variable::notify_all() noexcept {
-  taskENTER_CRITICAL();
+  condENTER_CRITICAL();
   for (int i = 0; i < kMaxWaitingThreads; ++i) {
     if (tasks_waiting_[i] != nullptr) {
       xTaskNotify(tasks_waiting_[i], 0, eNoAction);
       tasks_waiting_[i] = nullptr;
     }
   }
-  taskEXIT_CRITICAL();
+  condEXIT_CRITICAL();
 }
 
 void condition_variable::wait(unique_lock<mutex>& lock) noexcept {
   TaskHandle_t me = xTaskGetCurrentTaskHandle();
   bool queued = false;
-  taskENTER_CRITICAL();
+  condENTER_CRITICAL();
   for (int i = 0; i < kMaxWaitingThreads; ++i) {
     if (tasks_waiting_[i] == nullptr) {
       tasks_waiting_[i] = me;
@@ -55,21 +69,21 @@ void condition_variable::wait(unique_lock<mutex>& lock) noexcept {
     }
   }
   lock.unlock();
-  taskEXIT_CRITICAL();
+  condEXIT_CRITICAL();
   //   CHECK(queued) << "Maximum number of queued threads reached";
 
   // Wait on the condition variable.
   // bool signaled =
   xTaskNotifyWait(0, 0, nullptr, portMAX_DELAY);  // == pdPASS;
   lock.lock();
-  taskENTER_CRITICAL();
+  condENTER_CRITICAL();
   for (int i = 0; i < kMaxWaitingThreads; ++i) {
     if (tasks_waiting_[i] == me) {
       tasks_waiting_[i] = nullptr;
       break;
     }
   }
-  taskEXIT_CRITICAL();
+  condEXIT_CRITICAL();
 }
 
 cv_status condition_variable::wait_until_impl(unique_lock<mutex>& lock,
@@ -81,7 +95,7 @@ cv_status condition_variable::wait_until_impl(unique_lock<mutex>& lock,
   }
   TaskHandle_t me = xTaskGetCurrentTaskHandle();
   bool queued = false;
-  taskENTER_CRITICAL();
+  condENTER_CRITICAL();
   for (int i = 0; i < kMaxWaitingThreads; ++i) {
     if (tasks_waiting_[i] == nullptr) {
       tasks_waiting_[i] = me;
@@ -90,7 +104,7 @@ cv_status condition_variable::wait_until_impl(unique_lock<mutex>& lock,
     }
   }
   lock.unlock();
-  taskEXIT_CRITICAL();
+  condEXIT_CRITICAL();
   cv_status status;
   //   CHECK(queued) << "Maximum number of queued threads reached";
   // Wait on the condition variable.
@@ -105,14 +119,14 @@ cv_status condition_variable::wait_until_impl(unique_lock<mutex>& lock,
     if (delay == 0 || delay > internal::kMaxTicksDelay) break;
   }
   lock.lock();
-  taskENTER_CRITICAL();
+  condENTER_CRITICAL();
   for (int i = 0; i < kMaxWaitingThreads; ++i) {
     if (tasks_waiting_[i] == me) {
       tasks_waiting_[i] = nullptr;
       break;
     }
   }
-  taskEXIT_CRITICAL();
+  condEXIT_CRITICAL();
   return status;
 }
 

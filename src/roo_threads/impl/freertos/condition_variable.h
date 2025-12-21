@@ -17,9 +17,9 @@ namespace internal {
 
 // Truncate to half of the representation range, to avoid overflow in the
 // FreeRTOS API, taking into account that tick counter overflows.
-constexpr TickType_t kMaxTicksDelay = 1 << (configTICK_TYPE_WIDTH_IN_BITS - 1);
+constexpr TickType_t kMaxTicksDelay = 1 << (sizeof(TickType_t) * 8 - 1);
 
-TickType_t ToTicks(roo_time::Duration duration) {
+inline constexpr TickType_t ToTicks(roo_time::Duration duration) {
   int64_t micros = duration.inMicros();
   if (micros <= 0) return 0;
   uint64_t ms = (micros + 999) / 1000;
@@ -32,8 +32,6 @@ TickType_t ToTicks(roo_time::Duration duration) {
 
 class condition_variable {
  public:
-  //   typedef std::chrono::system_clock sysclock;
-
   condition_variable() noexcept;
 
   condition_variable(const condition_variable&) = delete;
