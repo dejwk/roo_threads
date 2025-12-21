@@ -3,9 +3,12 @@
 // SOCs using FreeRTOS (e.g. ESP32 family).
 
 #include "Arduino.h"
+
+#include "roo_threads.h"
+#include "roo_threads/thread.h"
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "roo_threads/thread.h"
 
 void run(int tid) {
   // Threads are mapped onto FreeRTOS tasks. You can use FeeRTOS task APIs to

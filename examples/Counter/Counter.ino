@@ -1,4 +1,6 @@
 #include "Arduino.h"
+
+#include "roo_threads.h"
 #include "roo_threads/mutex.h"
 #include "roo_threads/thread.h"
 
