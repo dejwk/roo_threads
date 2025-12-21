@@ -15,12 +15,12 @@ static portMUX_TYPE s_cond_lock = portMUX_INITIALIZER_UNLOCKED;
 #define condENTER_CRITICAL() portENTER_CRITICAL(&s_cond_lock)
 #define condEXIT_CRITICAL() portEXIT_CRITICAL(&s_cond_lock)
 #else
-#define condENTER_CRITICAL() vPortEnterCritical()
-#define condEXIT_CRITICAL() vPortExitCritical()
+#define condENTER_CRITICAL() vTaskEnterCritical()
+#define condEXIT_CRITICAL() vTaskExitCritical()
 #endif
 #else
-#define condENTER_CRITICAL() vPortEnterCritical()
-#define condEXIT_CRITICAL() vPortExitCritical()
+#define condENTER_CRITICAL() vTaskEnterCritical()
+#define condEXIT_CRITICAL() vTaskExitCritical()
 #endif
 
 condition_variable::condition_variable() noexcept {
