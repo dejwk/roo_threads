@@ -46,6 +46,9 @@ void loop() {
   t5.join();
   int result = counter.get();
   bool ok = (result == 50000);
-  Serial.printf("Total count: %d %s\n", result, ok ? "(OK)" : "(Bad!)");
+  Serial.print("Total count: ");
+  Serial.print(result);
+  Serial.print(" ");
+  Serial.println(ok ? "(OK)" : "(Bad!)");
   delay(1000);
 }

@@ -11,9 +11,13 @@ void run(int tid) {
   // Threads are mapped onto FreeRTOS tasks. You can use FeeRTOS task APIs to
   // interact with them in a platform-specific way.
   TaskHandle_t handle = xTaskGetCurrentTaskHandle();
-  Serial.printf("%d (%p): %s, priority: %d, free stack: %d\n", tid, handle,
-                pcTaskGetName(handle), uxTaskPriorityGet(handle),
-                uxTaskGetStackHighWaterMark(handle) * sizeof(StackType_t));
+  Serial.print(pcTaskGetName(handle));
+  Serial.print(" (0x");
+  Serial.printNumber((intptr_t)handle, 16);
+  Serial.print("): priority: ");
+  Serial.print(uxTaskPriorityGet(handle));
+  Serial.print(", free stack: ");
+  Serial.println(uxTaskGetStackHighWaterMark(handle) * sizeof(StackType_t));
 }
 
 void setup() { Serial.begin(115200); }

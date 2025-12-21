@@ -49,7 +49,10 @@ void run(Queue* queue, int tag, roo_time::Duration duration) {
   int val = 0;
   while (true) {
     queue->put(Queue::Item{tag, val});
-    Serial.printf("Published: %d.%d\n", tag, val);
+    Serial.print("Published: ");
+    Serial.print(tag);
+    Serial.print(".");
+    Serial.println(val);
     ++val;
     roo::this_thread::sleep_for(duration);
   }
@@ -69,6 +72,8 @@ void setup() {
 void loop() {
   // The consumer takes items from the queue as soon as they appear.
   Queue::Item item = queue.take();
-  Serial.printf("                       Consumed: %d.%d\n", item.tag,
-                item.value);
+  Serial.print("                       Consumed: ");
+  Serial.print(item.tag);
+  Serial.print(".");
+  Serial.println(item.value);
 }
