@@ -1,5 +1,9 @@
 #pragma once
 
+#include "roo_threads/impl/resolve.h"
+
+#ifdef ROO_THREADS_USE_FREERTOS
+
 #include "roo_time.h"
 
 #include "roo_threads/impl/freertos/callable.h"
@@ -115,3 +119,5 @@ void sleep_until(const roo_time::Uptime& when);
 
 }  // namespace freertos
 }  // namespace roo_threads
+
+#endif  // ROO_THREADS_USE_FREERTOS

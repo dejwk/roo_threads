@@ -1,5 +1,10 @@
+#include "roo_threads/impl/resolve.h"
+
+#ifdef ROO_THREADS_USE_FREERTOS
+
 #include "roo_threads/impl/freertos/mutex.h"
 
+#include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 
@@ -47,3 +52,5 @@ void checkLockOwned(bool owns) {
 
 }  // namespace freertos
 }  // namespace roo_threads
+
+#endif  // ROO_THREADS_USE_FREERTOS

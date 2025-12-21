@@ -2,9 +2,9 @@
 
 #include "roo_threads/impl/resolve.h"
 
-#include "roo_time.h"
-
 #ifdef ROO_THREADS_USE_FREERTOS
+
+#include "roo_time.h"
 
 #include <cstdint>
 #include <utility>

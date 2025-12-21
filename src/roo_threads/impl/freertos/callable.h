@@ -1,5 +1,9 @@
 #pragma once
 
+#include "roo_threads/impl/resolve.h"
+
+#ifdef ROO_THREADS_USE_FREERTOS
+
 #include <functional>
 #include <memory>
 #include <utility>
@@ -125,3 +129,5 @@ static std::unique_ptr<internal::VirtualCallable> MakeDynamicCallableWithArgs(
 }  // namespace internal
 }  // namespace freertos
 }  // namespace roo_threads
+
+#endif  // ROO_THREADS_USE_FREERTOS

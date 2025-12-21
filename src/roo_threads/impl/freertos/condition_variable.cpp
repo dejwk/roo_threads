@@ -1,6 +1,8 @@
-#include "roo_threads/impl/freertos/condition_variable.h"
+#include "roo_threads/impl/resolve.h"
 
-// #include "glog/logging.h"
+#ifdef ROO_THREADS_USE_FREERTOS
+
+#include "roo_threads/impl/freertos/condition_variable.h"
 
 namespace roo_threads {
 namespace freertos {
@@ -116,3 +118,5 @@ cv_status condition_variable::wait_until_impl(unique_lock<mutex>& lock,
 
 }  // namespace freertos
 }  // namespace roo_threads
+
+#endif  // ROO_THREADS_USE_FREERTOS
