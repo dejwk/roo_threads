@@ -1,5 +1,4 @@
 #include "Arduino.h"
-
 #include "roo_threads/thread.h"
 
 roo::thread t1;
@@ -28,6 +27,6 @@ void setup() {
 
 void loop() {
   roo::this_thread::sleep_for(roo_time::Seconds(10));
-    Serial.print(millis());
-    Serial.print(": loop");
+  Serial.print(millis());
+  Serial.print(": loop");
 }
