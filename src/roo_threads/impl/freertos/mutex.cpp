@@ -13,12 +13,12 @@ namespace roo_threads {
 namespace freertos {
 
 mutex::mutex() noexcept {
-#if !ROO_THREADS_FREERTOS_LAZY_INITIALIZE_MUTEX
+#if !ROO_THREADS_FREERTOS_LAZY_INITIALIZE
   xSemaphoreCreateMutexStatic(&mutex_);
 #endif
 }
 
-#if ROO_THREADS_FREERTOS_LAZY_INITIALIZE_MUTEX
+#if ROO_THREADS_FREERTOS_LAZY_INITIALIZE
 
 #if defined(ESP32) && defined(configNUM_CORES)
 #if configNUM_CORES > 1

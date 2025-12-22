@@ -4,17 +4,13 @@
 
 #ifdef ROO_THREADS_USE_FREERTOS
 
-#ifndef ROO_THREADS_FREERTOS_LAZY_INITIALIZE_MUTEX
-#define ROO_THREADS_FREERTOS_LAZY_INITIALIZE_MUTEX 1
-#endif
-
-#include "roo_time.h"
-
 #include <cstdint>
 #include <utility>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "roo_threads/impl/freertos/config.h"
+#include "roo_time.h"
 
 namespace roo_threads {
 namespace freertos {
@@ -37,7 +33,7 @@ class mutex {
 
   StaticSemaphore_t mutex_;
 
-#if ROO_THREADS_FREERTOS_LAZY_INITIALIZE_MUTEX
+#if ROO_THREADS_FREERTOS_LAZY_INITIALIZE
   bool initialized_ = false;
 #endif
 };
