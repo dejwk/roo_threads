@@ -3,24 +3,28 @@
 // SOCs using FreeRTOS (e.g. ESP32 family).
 
 #include "Arduino.h"
-
-#include "roo_threads.h"
-#include "roo_threads/thread.h"
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "roo_threads.h"
+#include "roo_threads/mutex.h"
+#include "roo_threads/thread.h"
+
+roo::mutex serial_mutex;
 
 void run(int tid) {
   // Threads are mapped onto FreeRTOS tasks. You can use FeeRTOS task APIs to
   // interact with them in a platform-specific way.
   TaskHandle_t handle = xTaskGetCurrentTaskHandle();
-  Serial.print(pcTaskGetName(handle));
-  Serial.print(" (0x");
-  Serial.print((intptr_t)handle, HEX);
-  Serial.print("): priority: ");
-  Serial.print(uxTaskPriorityGet(handle));
-  Serial.print(", free stack: ");
-  Serial.println(uxTaskGetStackHighWaterMark(handle) * sizeof(StackType_t));
+  {
+    roo::lock_guard<roo::mutex> lock(serial_mutex);
+    Serial.print(pcTaskGetName(handle));
+    Serial.print(" (0x");
+    Serial.print((intptr_t)handle, HEX);
+    Serial.print("): priority: ");
+    Serial.print(uxTaskPriorityGet(handle));
+    Serial.print(", free stack: ");
+    Serial.println(uxTaskGetStackHighWaterMark(handle) * sizeof(StackType_t));
+  }
 }
 
 void setup() { Serial.begin(115200); }

@@ -77,9 +77,9 @@ class thread {
 
   thread& operator=(thread&& other) noexcept;
 
-  void swap(thread& other) noexcept { std::swap(state_, other.state_); }
+  void swap(thread& other) noexcept;
 
-  bool joinable() const noexcept { return state_ != nullptr; }
+  bool joinable() const noexcept;
 
   void join();
 
