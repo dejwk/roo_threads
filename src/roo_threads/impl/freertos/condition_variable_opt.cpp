@@ -1,9 +1,8 @@
-#include "roo_threads/impl/resolve.h"
+#include "roo_threads/impl/freertos/condition_variable_opt.h"
 
 #ifdef ROO_THREADS_USE_FREERTOS
 
 #include <assert.h>
-#include "roo_threads/impl/freertos/condition_variable.h"
 
 namespace roo_threads {
 namespace freertos {
@@ -22,13 +21,13 @@ static portMUX_TYPE s_cond_lock = portMUX_INITIALIZER_UNLOCKED;
 #define condEXIT_CRITICAL() vPortExitCritical()
 #endif
 
-condition_variable::condition_variable() noexcept {
+condition_variable_opt::condition_variable_opt() noexcept {
   for (int i = 0; i < kMaxWaitingThreads; ++i) {
     tasks_waiting_[i] = nullptr;
   }
 }
 
-void condition_variable::notify_one() noexcept {
+void condition_variable_opt::notify_one() noexcept {
   TaskHandle_t* task_to_notify = nullptr;
   condENTER_CRITICAL();
   for (int i = 0; i < kMaxWaitingThreads; ++i) {
@@ -47,7 +46,7 @@ void condition_variable::notify_one() noexcept {
   condEXIT_CRITICAL();
 }
 
-void condition_variable::notify_all() noexcept {
+void condition_variable_opt::notify_all() noexcept {
   condENTER_CRITICAL();
   for (int i = 0; i < kMaxWaitingThreads; ++i) {
     if (tasks_waiting_[i] != nullptr) {
@@ -58,7 +57,7 @@ void condition_variable::notify_all() noexcept {
   condEXIT_CRITICAL();
 }
 
-void condition_variable::wait(unique_lock<mutex>& lock) noexcept {
+void condition_variable_opt::wait(unique_lock<mutex>& lock) noexcept {
   TaskHandle_t me = xTaskGetCurrentTaskHandle();
   bool queued = false;
   condENTER_CRITICAL();
@@ -87,8 +86,8 @@ void condition_variable::wait(unique_lock<mutex>& lock) noexcept {
   condEXIT_CRITICAL();
 }
 
-cv_status condition_variable::wait_until_impl(unique_lock<mutex>& lock,
-                                              TickType_t when) noexcept {
+cv_status condition_variable_opt::wait_until_impl(unique_lock<mutex>& lock,
+                                                  TickType_t when) noexcept {
   TickType_t now = xTaskGetTickCount();
   TickType_t delay = when - now;
   if (delay == 0 || delay > internal::kMaxTicksDelay) {

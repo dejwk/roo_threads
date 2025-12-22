@@ -1,15 +1,15 @@
 #pragma once
 
-#include "roo_threads/impl/freertos/condition_variable_opt.h"
+#include "roo_threads/impl/resolve.h"
 
 #ifdef ROO_THREADS_USE_FREERTOS
 
 namespace roo_threads {
 namespace freertos {
 
-using condition_variable = condition_variable_opt;
+enum class cv_status { no_timeout, timeout };
 
 }  // namespace freertos
 }  // namespace roo_threads
 
-#endif
+#endif  // ROO_THREADS_USE_FREERTOS
