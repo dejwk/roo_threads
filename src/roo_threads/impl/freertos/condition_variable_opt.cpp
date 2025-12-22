@@ -17,8 +17,8 @@ static portMUX_TYPE s_cond_lock = portMUX_INITIALIZER_UNLOCKED;
 #define condEXIT_CRITICAL() vPortExitCritical()
 #endif
 #else
-#define condENTER_CRITICAL() vPortEnterCritical()
-#define condEXIT_CRITICAL() vPortExitCritical()
+#define condENTER_CRITICAL() portENTER_CRITICAL()
+#define condEXIT_CRITICAL() portEXIT_CRITICAL()
 #endif
 
 condition_variable_opt::condition_variable_opt() noexcept {

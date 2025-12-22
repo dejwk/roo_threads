@@ -30,8 +30,8 @@ static portMUX_TYPE s_mutex_init_lock = portMUX_INITIALIZER_UNLOCKED;
 #define mutexEXIT_CRITICAL() vPortExitCritical()
 #endif
 #else
-#define mutexENTER_CRITICAL() vPortEnterCritical()
-#define mutexEXIT_CRITICAL() vPortExitCritical()
+#define mutexENTER_CRITICAL() portENTER_CRITICAL()
+#define mutexEXIT_CRITICAL() portEXIT_CRITICAL()
 #endif
 
 void mutex::ensureInitialized() noexcept {

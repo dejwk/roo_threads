@@ -5,7 +5,7 @@
 #ifdef ROO_THREADS_USE_FREERTOS
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+#include "freertos/semphr.h"
 #include "roo_threads/impl/freertos/timeutil.h"
 
 namespace roo_threads {

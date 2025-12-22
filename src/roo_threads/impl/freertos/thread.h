@@ -110,7 +110,11 @@ class thread::id {
  public:
   id() : id_(nullptr) {}
   bool operator==(const id& other) const { return id_ == other.id_; }
+  bool operator!=(const id& other) const { return id_ != other.id_; }
   bool operator<(const id& other) const { return id_ < other.id_; }
+  bool operator<=(const id& other) const { return id_ <= other.id_; }
+  bool operator>(const id& other) const { return id_ > other.id_; }
+  bool operator>=(const id& other) const { return id_ >= other.id_; }
 
  private:
   id(void* id) : id_(id) {}
