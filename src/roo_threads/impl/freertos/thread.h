@@ -4,9 +4,8 @@
 
 #ifdef ROO_THREADS_USE_FREERTOS
 
-#include "roo_time.h"
-
 #include "roo_threads/impl/freertos/callable.h"
+#include "roo_time.h"
 
 namespace roo_threads {
 namespace freertos {
@@ -14,17 +13,7 @@ namespace freertos {
 class thread {
  public:
   // Turns a pointer into an opaque type.
-  class id {
-   public:
-    id() : id_(nullptr) {}
-    id(void* id) : id_(id) {}
-    bool operator==(const id& other) const { return id_ == other.id_; }
-
-   private:
-    friend class thread;
-
-    void* id_;
-  };
+  class id;
 
   class attributes {
    public:
@@ -116,6 +105,21 @@ void sleep_for(const roo_time::Duration& duration);
 void sleep_until(const roo_time::Uptime& when);
 
 }  // namespace this_thread
+
+class thread::id {
+ public:
+  id() : id_(nullptr) {}
+  bool operator==(const id& other) const { return id_ == other.id_; }
+  bool operator<(const id& other) const { return id_ < other.id_; }
+
+ private:
+  id(void* id) : id_(id) {}
+
+  friend class thread;
+  friend id this_thread::get_id() noexcept;
+
+  void* id_;
+};
 
 }  // namespace freertos
 }  // namespace roo_threads
