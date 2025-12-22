@@ -1,8 +1,73 @@
-This library provides a library of concurrency primitives (thread, mutex, condition variable, locks, etc.), in the 'roo::' namespace. These generally mimic C++ standard, except that they do not depend on `<chrono>`, but on roo_time.
+This library provides concurrency primitives (thread, mutex, condition variable, locks, semaphores, latches, etc.) intended for use on microcontrollers.
 
-For ESP32, it uses the standard C++ library underneath.
+They generally mimic C++ standard, with a few small differences for a better fit for embedded devices:
+* they are defined in the `roo` namespace,
+* they do not depend on `<chrono>`, but on `roo_time`,
+* some important thread attributes are supported; specifically, it is possible to set stack size, priority, and name when creating a thread.
 
-For other microcontrollers, and by default, the library compiles in a 'single-threaded' mode, in which the functionality to start new threads is not available, but a lot of mutex/lock functionality
-is implemented (usually as no-op). Because of that, it OK to implement classes that use mutexes and locks, so that they are thread-safe on multi-threaded platforms, but still compile and work on single-threaded platforms.
+Not all of the standard concurrency functionality is ported (yet), but there should be enough here to get you going. Contributions are welcome!
 
-Additinally, this library works correctly with the roo_testing environment, allowing to unit-test and emulate multi-threaded ESP32 programs in the Linux environment.
+The library has been tested on the ESP32 family, and on Raspberry Pi Pico RP2040 with the FreeRTOS SMP OS. The implementation that uses FreeRTOS primitives is generic, and should be easily portable to other platforms supporting FreeRTOS.
+
+On ESP32, the library delegates to the standard C++ library as much as possible.
+
+# Basic usage
+
+The minimalistic Arduino program is as follows:
+
+```cpp
+#include "Arduino.h"
+
+#include "roo_threads.h"
+
+void setup() {
+  Serial.begin(115200);
+}
+
+void loop() {
+  roo::thread t([]() {
+    Serial.println("Hello from roo::thread!");
+  });
+  t.join();
+  delay(1000);
+}
+```
+
+See attached examples.
+
+## ESP32 family
+
+No special configuration is required; the library works out-of-the-box.
+
+The library can be mixed with the concurrency utilities from the standard library (e.g. <atomic>, <mutex>, etc.), and with native FreeRTOS APIs (e.g. xTaskCreate, etc.), since it uses the same underlying primitives.
+
+## Rasbperry Pi Pico
+
+You must install the FreeRTOS OS in order to be able to use `roo_threads`.
+
+For Arduino IDE, see [this video](https://www.youtube.com/watch?v=JfVnUlGTBi8).
+
+For VS Code with pioarduino, use these settings in the `platformio.ini`:
+
+```
+[env:pico]
+platform = https://github.com/maxgerhardt/platform-raspberrypi.git
+board = pico
+framework = arduino
+board_build.core = earlephilhower
+
+build_flags =
+    -D __FREERTOS=1
+
+```
+
+The library can be mixed with the native FreeRTOS APIs (e.g. xTaskCreate, etc.), since it uses the same underlying primitives.
+
+## Compatibility with single-threaded platforms
+
+As a fallback, the library can be compiled in a 'single-threaded' mode, in which the functionality to start new threads is not available, but a lot of mutex/lock functionality
+is implemented as a no-op. It allows you to implement thread-safe libraries that still compile and work on single-threaded platforms.
+
+## Testing
+
+The library should work correctly in emulators that support FreeRTOS. In particular, it works correctly with the [http://github.com/dejwk/roo_testing](roo_testing) environment, allowing to unit-test and emulate multi-threaded ESP32 programs on Linux.
