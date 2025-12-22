@@ -27,7 +27,7 @@ inline constexpr TickType_t ToTicks(roo_time::Duration duration) {
                                    : kMaxTicksDelay;
 }
 
-roo_time::Uptime CalculateDeadlineFromDuration(
+inline roo_time::Uptime CalculateDeadlineFromDuration(
     const roo_time::Duration& duration) {
   auto now = roo_time::Uptime::Now();
   return (duration <= roo_time::Uptime::Max() - now) ? now + duration
