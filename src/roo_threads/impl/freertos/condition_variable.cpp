@@ -3,7 +3,6 @@
 #ifdef ROO_THREADS_USE_FREERTOS
 
 #include <assert.h>
-
 #include "roo_threads/impl/freertos/condition_variable.h"
 
 namespace roo_threads {
@@ -107,7 +106,7 @@ cv_status condition_variable::wait_until_impl(unique_lock<mutex>& lock,
   }
   lock.unlock();
   condEXIT_CRITICAL();
-  cv_status status;
+  cv_status status = cv_status::timeout;
   assert(queued);  // Checks for maximum number of queued threads reached.
   // Wait on the condition variable.
   while (true) {

@@ -49,8 +49,9 @@ class condition_variable {
   void notify_all() noexcept;
 
   cv_status wait_until(unique_lock<mutex>& lock, const roo_time::Uptime& when) {
-    return wait_until_impl(lock,
-                           internal::ToTicks(when - roo_time::Uptime::Now()));
+    return wait_until_impl(
+        lock, xTaskGetTickCount() +
+                  internal::ToTicks(when - roo_time::Uptime::Now()));
   }
 
   template <typename Predicate>
