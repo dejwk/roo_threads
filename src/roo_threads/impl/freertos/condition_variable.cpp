@@ -9,18 +9,18 @@
 namespace roo_threads {
 namespace freertos {
 
-#if defined(configNUM_CORES)
+#if defined(ESP32) && defined(configNUM_CORES)
 #if configNUM_CORES > 1
 static portMUX_TYPE s_cond_lock = portMUX_INITIALIZER_UNLOCKED;
 #define condENTER_CRITICAL() portENTER_CRITICAL(&s_cond_lock)
 #define condEXIT_CRITICAL() portEXIT_CRITICAL(&s_cond_lock)
 #else
-#define condENTER_CRITICAL() vTaskEnterCritical()
-#define condEXIT_CRITICAL() vTaskExitCritical()
+#define condENTER_CRITICAL() vPortEnterCritical()
+#define condEXIT_CRITICAL() vPortExitCritical()
 #endif
 #else
-#define condENTER_CRITICAL() vTaskEnterCritical()
-#define condEXIT_CRITICAL() vTaskExitCritical()
+#define condENTER_CRITICAL() vPortEnterCritical()
+#define condEXIT_CRITICAL() vPortExitCritical()
 #endif
 
 condition_variable::condition_variable() noexcept {
