@@ -6,30 +6,14 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "roo_threads/impl/freertos/mutex.h"
 #include "roo_threads/impl/freertos/cv_status.h"
+#include "roo_threads/impl/freertos/mutex.h"
+#include "roo_threads/impl/freertos/timeutil.h"
 
 static constexpr int kMaxWaitingThreads = 8;
 
 namespace roo_threads {
 namespace freertos {
-
-namespace internal {
-
-// Truncate to half of the representation range, to avoid overflow in the
-// FreeRTOS API, taking into account that tick counter overflows.
-constexpr TickType_t kMaxTicksDelay = 1 << (sizeof(TickType_t) * 8 - 1);
-
-inline constexpr TickType_t ToTicks(roo_time::Duration duration) {
-  int64_t micros = duration.inMicros();
-  if (micros <= 0) return 0;
-  uint64_t ms = (micros + 999) / 1000;
-  uint64_t ticks = (ms + portTICK_PERIOD_MS - 1) / portTICK_PERIOD_MS;
-  return (ticks <= kMaxTicksDelay) ? static_cast<TickType_t>(ticks)
-                                   : kMaxTicksDelay;
-}
-
-}  // namespace internal
 
 class condition_variable_opt {
  public:
