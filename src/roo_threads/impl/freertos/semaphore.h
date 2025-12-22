@@ -26,7 +26,9 @@ class counting_semaphore {
     xSemaphoreTake((SemaphoreHandle_t)&sem_, portMAX_DELAY);
   }
 
-  void try_acquire() noexcept { xSemaphoreTake((SemaphoreHandle_t)&sem_, 0); }
+  bool try_acquire() noexcept {
+    return xSemaphoreTake((SemaphoreHandle_t)&sem_, 0) == pdTRUE;
+  }
 
   void release() noexcept { xSemaphoreGive((SemaphoreHandle_t)&sem_); }
 
@@ -51,7 +53,9 @@ class binary_semaphore {
     xSemaphoreTake((SemaphoreHandle_t)&sem_, portMAX_DELAY);
   }
 
-  void try_acquire() noexcept { xSemaphoreTake((SemaphoreHandle_t)&sem_, 0); }
+  bool try_acquire() noexcept {
+    return xSemaphoreTake((SemaphoreHandle_t)&sem_, 0) == pdTRUE;
+  }
 
   void release() noexcept { xSemaphoreGive((SemaphoreHandle_t)&sem_); }
 
