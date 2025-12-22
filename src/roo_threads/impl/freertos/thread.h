@@ -43,7 +43,7 @@ class thread {
 
   thread(const thread&) = delete;
 
-  thread(thread&& other) noexcept { swap(other); }
+  thread(thread&& other) noexcept : thread() { swap(other); }
 
   template <typename Callable, typename... Args,
             typename = internal::RequireNotSame<Callable, thread>,
