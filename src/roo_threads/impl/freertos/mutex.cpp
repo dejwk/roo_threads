@@ -12,9 +12,44 @@
 namespace roo_threads {
 namespace freertos {
 
-mutex::mutex() noexcept { xSemaphoreCreateMutexStatic(&mutex_); }
+mutex::mutex() noexcept {
+#if !ROO_THREADS_FREERTOS_LAZY_INITIALIZE_MUTEX
+  xSemaphoreCreateMutexStatic(&mutex_);
+#endif
+}
+
+#if ROO_THREADS_FREERTOS_LAZY_INITIALIZE_MUTEX
+
+#if defined(ESP32) && defined(configNUM_CORES)
+#if configNUM_CORES > 1
+static portMUX_TYPE s_mutex_init_lock = portMUX_INITIALIZER_UNLOCKED;
+#define mutexENTER_CRITICAL() portENTER_CRITICAL(&s_mutex_init_lock)
+#define mutexEXIT_CRITICAL() portEXIT_CRITICAL(&s_mutex_init_lock)
+#else
+#define mutexENTER_CRITICAL() vPortEnterCritical()
+#define mutexEXIT_CRITICAL() vPortExitCritical()
+#endif
+#else
+#define mutexENTER_CRITICAL() vPortEnterCritical()
+#define mutexEXIT_CRITICAL() vPortExitCritical()
+#endif
+
+void mutex::ensureInitialized() noexcept {
+  if (!initialized_) {
+    mutexENTER_CRITICAL();
+    if (!initialized_) {
+      xSemaphoreCreateMutexStatic(&mutex_);
+      initialized_ = true;
+    }
+    mutexEXIT_CRITICAL();
+  }
+}
+#else
+void mutex::ensureInitialized() noexcept {}
+#endif
 
 void mutex::lock() {
+  ensureInitialized();
   if (xTaskGetCurrentTaskHandle() == nullptr) {
     // Scheduler not yet running; no-op.
     return;
@@ -23,6 +58,7 @@ void mutex::lock() {
 }
 
 bool mutex::try_lock() {
+  ensureInitialized();
   if (xTaskGetCurrentTaskHandle() == nullptr) {
     // Scheduler not yet running; no-op.
     return true;
@@ -31,6 +67,7 @@ bool mutex::try_lock() {
 }
 
 void mutex::unlock() {
+  ensureInitialized();
   if (xTaskGetCurrentTaskHandle() == nullptr) {
     // Scheduler not yet running; no-op.
     return;

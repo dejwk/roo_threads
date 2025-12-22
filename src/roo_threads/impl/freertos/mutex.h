@@ -4,6 +4,10 @@
 
 #ifdef ROO_THREADS_USE_FREERTOS
 
+#ifndef ROO_THREADS_FREERTOS_LAZY_INITIALIZE_MUTEX
+#define ROO_THREADS_FREERTOS_LAZY_INITIALIZE_MUTEX 1
+#endif
+
 #include "roo_time.h"
 
 #include <cstdint>
@@ -29,7 +33,13 @@ class mutex {
   void unlock();
 
  private:
+  void ensureInitialized() noexcept;
+
   StaticSemaphore_t mutex_;
+
+#if ROO_THREADS_FREERTOS_LAZY_INITIALIZE_MUTEX
+  bool initialized_ = false;
+#endif
 };
 
 template <typename Mutex>
