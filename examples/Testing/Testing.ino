@@ -1,6 +1,9 @@
 
 #include "Arduino.h"
 #include "roo_threads.h"
+#include "roo_threads/condition_variable.h"
+#include "roo_threads/mutex.h"
+#include "roo_threads/semaphore.h"
 #include "roo_threads/thread.h"
 
 void run(int tid) {
@@ -317,6 +320,74 @@ void CondBroadcast() {
   CONCLUDE();
 }
 
+void BinarySemaphoreAcquireRelease() {
+  START("BinarySemaphoreAcquireRelease");
+  roo::binary_semaphore sem(0);
+  bool acquired = false;
+  roo::thread t1([&]() {
+    sem.acquire();
+    EXPECT(!sem.try_acquire());
+    acquired = true;
+  });
+  roo::this_thread::sleep_for(roo_time::Millis(100));
+  EXPECT(!acquired);
+  sem.release();
+  t1.join();
+  EXPECT(acquired);
+  CONCLUDE();
+}
+
+void BinarySemaphoreTryAcquireForTimeout() {
+  START("BinarySemaphoreTryAcquireForTimeout");
+  roo::binary_semaphore sem(0);
+  roo_time::Uptime start = roo_time::Uptime::Now();
+  roo::thread t1(
+      [&]() { EXPECT(!sem.try_acquire_for(roo_time::Millis(100))); });
+  roo::this_thread::sleep_for(roo_time::Millis(120));
+  sem.release();
+  t1.join();
+  EXPECT((roo_time::Uptime::Now() - start).inMillisRoundedUp() >= 100);
+  CONCLUDE();
+}
+
+void CountingSemaphoreAcquireRelease() {
+  START("CountingSemaphoreAcquireRelease");
+  roo::counting_semaphore<10> sem(0);
+  bool acquired = false;
+  roo::thread t1([&]() {
+    sem.acquire();
+    sem.acquire();
+    sem.acquire();
+    sem.acquire();
+    EXPECT(sem.try_acquire());
+    EXPECT(!sem.try_acquire());
+    acquired = true;
+  });
+  roo::this_thread::sleep_for(roo_time::Millis(100));
+  EXPECT(!acquired);
+  sem.release();
+  sem.release();
+  sem.release();
+  sem.release();
+  sem.release();
+  t1.join();
+  EXPECT(acquired);
+  CONCLUDE();
+}
+
+void CountingSemaphoreAcquireReleasePreinitialized() {
+  START("CountingSemaphoreAcquireReleasePreinitialized");
+  roo::counting_semaphore<10> sem(3);
+  roo::thread t1([&]() {
+    sem.acquire();
+    sem.acquire();
+    EXPECT(sem.try_acquire());
+    EXPECT(!sem.try_acquire());
+  });
+  t1.join();
+  CONCLUDE();
+}
+
 void RunCondTests() {
   CondWait();
   CondWaitForTimingOut();
@@ -325,9 +396,17 @@ void RunCondTests() {
   CondBroadcast();
 }
 
+void RunSemaphoreTests() {
+  BinarySemaphoreAcquireRelease();
+  BinarySemaphoreTryAcquireForTimeout();
+  CountingSemaphoreAcquireRelease();
+  CountingSemaphoreAcquireReleasePreinitialized();
+}
+
 void loop() {
   RunThreadTests();
   RunMutexTests();
   RunCondTests();
+  RunSemaphoreTests();
   delay(1000);
 }
