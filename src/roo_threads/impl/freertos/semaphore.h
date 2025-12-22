@@ -11,6 +11,10 @@
 namespace roo_threads {
 namespace freertos {
 
+// Note: it doesn't seem to make sense to make a 'lazy-initialize' version
+// of semaphores, because they take the desired initial count which is
+// usually greater than zero.
+
 template <std::ptrdiff_t LeastMaxValue =
               std::numeric_limits<UBaseType_t>::max()>
 class counting_semaphore {
