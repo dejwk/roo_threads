@@ -4,11 +4,10 @@
 
 #include <assert.h>
 
-#include "roo_threads/impl/freertos/thread.h"
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "roo_threads/impl/freertos/thread.h"
 
 namespace roo_threads {
 namespace freertos {
@@ -17,7 +16,7 @@ thread::attributes::attributes()
     : stack_size_(configMINIMAL_STACK_SIZE * sizeof(portSTACK_TYPE)),
       priority_(1),
       joinable_(true),
-      name_("roo_testing") {}
+      name_("roo") {}
 
 namespace {
 
@@ -33,9 +32,16 @@ struct thread_state {
 
 }  // namespace
 
-thread::~thread() {
-  assert(!joinable());
+void thread::swap(thread& other) noexcept {
+  std::swap(state_, other.state_);
 }
+
+bool thread::joinable() const noexcept {
+  thread_state* state = (thread_state*)state_;
+  return state != nullptr;
+}
+
+thread::~thread() { assert(!joinable()); }
 
 thread& thread::operator=(thread&& other) noexcept {
   assert(!joinable());
@@ -44,23 +50,20 @@ thread& thread::operator=(thread&& other) noexcept {
 }
 
 thread::id thread::get_id() const noexcept {
+  thread_state* state = (thread_state*)state_;
   if (state_ == nullptr) {
     return thread::id(nullptr);
   }
-  thread_state* state = (thread_state*)state_;
   return thread::id(state->task);
 }
 
 static void run_thread(void* arg) {
   thread_state* p = (thread_state*)arg;
   p->start->call();
-  vTaskSuspendAll();
   if (p->attr.joinable()) {
     xSemaphoreGive((SemaphoreHandle_t)&p->join_barrier);
-    xTaskResumeAll();
     vTaskSuspend(nullptr);
   } else {
-    xTaskResumeAll();
     delete p;
     vTaskDelete(nullptr);
   }
@@ -76,7 +79,8 @@ void thread::start(const attributes& attributes,
     xSemaphoreCreateMutexStatic(&state->join_mutex);
     xSemaphoreCreateBinaryStatic(&state->join_barrier);
   }
-  vTaskSuspendAll();
+  // Note: we expect xTaskCreate to make a memory barrier, so that if the task
+  // gets scheduled on a different core, it still sees fully initialized state.
   if (xTaskCreate(run_thread, state->attr.name(),
                   (uint16_t)(state->attr.stack_size() / sizeof(portSTACK_TYPE)),
                   (void*)state, state->attr.priority(),
@@ -85,13 +89,12 @@ void thread::start(const attributes& attributes,
     assert(false);
   }
   state_ = state;
-  xTaskResumeAll();
 }
 
 void thread::join() {
   thread_state* state = (thread_state*)state_;
-  assert(state != nullptr);  // Attempting to join a null thread
-  assert (state->attr.joinable());  // Attempting to join a non-joinable thread
+  assert(state != nullptr);        // Attempting to join a null thread
+  assert(state->attr.joinable());  // Attempting to join a non-joinable thread
   if (xSemaphoreTake((SemaphoreHandle_t)&state->join_mutex, 0) != pdPASS) {
     assert(false);  // Another thread has already joined the requested thread
   }
@@ -101,19 +104,18 @@ void thread::join() {
 
   // Wait for the joined thread to finish.
   xSemaphoreTake((SemaphoreHandle_t)&state->join_barrier, portMAX_DELAY);
-
-  vTaskSuspendAll();
   xSemaphoreGive((SemaphoreHandle_t)&state->join_barrier);
+  // At this point, the joined thread does nothing else but suspends itself. It
+  // is safe to delete resources.
   vSemaphoreDelete((SemaphoreHandle_t)&state->join_barrier);
+  state_ = 0;
 
   xSemaphoreGive((SemaphoreHandle_t)&state->join_mutex);
   vSemaphoreDelete((SemaphoreHandle_t)&state->join_mutex);
-
   vTaskDelete(state->task);
 
-  state_ = 0;
+  // Nothing else should be dereferencing state anymoore.
   delete state;
-  xTaskResumeAll();
 }
 
 namespace this_thread {
