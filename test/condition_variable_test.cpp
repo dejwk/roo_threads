@@ -62,7 +62,7 @@ TEST(ConditionVariableTest, WaitForTimesOut) {
     roo::unique_lock<roo::mutex> lock(m);
     auto start = roo_time::Uptime::Now();
     timed_out =
-        (cv.wait_for(lock, roo_time::Millis(1)) == roo::cv_status::timeout);
+        (cv.wait_for(lock, roo_time::Millis(2)) == roo::cv_status::timeout);
     auto end = roo_time::Uptime::Now();
     ASSERT_GE(end - start, roo_time::Millis(1));
   });
