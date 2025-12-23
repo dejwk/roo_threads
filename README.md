@@ -33,7 +33,23 @@ void loop() {
 }
 ```
 
-See attached examples.
+For esp-idf:
+
+```cpp
+#include <cstdio>
+
+#include "roo_threads.h"
+
+extern "C" void app_main() {
+  while (true) {
+    roo::thread t([]() { printf("Hello from roo::thread!\n"); });
+    t.join();
+    roo::this_thread::sleep_for(roo_time::Millis(1000));
+  }
+}
+```
+
+For more details, see attached examples.
 
 ## ESP32 family
 
