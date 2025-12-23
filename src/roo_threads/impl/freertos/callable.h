@@ -1,17 +1,15 @@
 #pragma once
 
-#include "roo_threads/impl/resolve.h"
-
-#ifdef ROO_THREADS_USE_FREERTOS
-
 #include <functional>
 #include <memory>
 #include <utility>
 
+#include "roo_threads/impl/resolve.h"
+
+#ifdef ROO_THREADS_USE_FREERTOS
+
 namespace roo_threads {
 namespace freertos {
-
-namespace internal {
 
 template <size_t... Indexes>
 struct IndexTuple {
@@ -28,35 +26,6 @@ struct BuildIndexTuple<0> {
   typedef IndexTuple<> type;
 };
 
-template <typename...>
-struct And;
-
-template <>
-struct And<> : public std::true_type {};
-
-template <typename Arg1>
-struct And<Arg1> : public Arg1 {};
-
-template <typename Arg1, typename Arg2>
-struct And<Arg1, Arg2>
-    : public std::conditional<Arg1::value, Arg2, Arg1>::type {};
-
-template <typename Arg1, typename Arg2, typename Arg3, typename... ArgN>
-struct And<Arg1, Arg2, Arg3, ArgN...>
-    : public std::conditional<Arg1::value, And<Arg2, Arg3, ArgN...>,
-                              Arg1>::type {};
-
-template <typename Arg>
-struct Not : public std::bool_constant<!bool(Arg::value)> {};
-
-template <typename... Condition>
-using Require = typename std::enable_if<And<Condition...>::value>::type;
-
-template <typename A, typename B>
-using RequireNotSame = Require<Not<std::is_same<
-    typename std::remove_cv<typename std::remove_reference<A>::type>::type,
-    typename std::remove_cv<typename std::remove_reference<B>::type>::type>>>;
-
 template <typename Tuple>
 struct Invoker {
   Tuple tuple;
@@ -65,14 +34,13 @@ struct Invoker {
   static std::tuple_element_t<Index, Tuple>&& DeclVal();
 
   template <size_t... Ind>
-  auto invoke(internal::IndexTuple<Ind...>) noexcept(
+  auto invoke(IndexTuple<Ind...>) noexcept(
       noexcept(std::invoke(DeclVal<Ind>()...)))
       -> decltype(std::invoke(DeclVal<Ind>()...)) {
     return std::invoke(std::get<Ind>(std::move(tuple))...);
   }
 
-  using Indices =
-      typename internal::BuildIndexTuple<std::tuple_size<Tuple>::value>::type;
+  using Indices = typename BuildIndexTuple<std::tuple_size<Tuple>::value>::type;
 
   auto operator()() noexcept(
       noexcept(std::declval<Invoker&>().invoke(Indices())))
@@ -110,9 +78,9 @@ class DynamicCallable : public VirtualCallable {
 };
 
 template <typename Callable>
-static std::unique_ptr<internal::VirtualCallable> MakeDynamicCallable(
+static std::unique_ptr<VirtualCallable> MakeDynamicCallable(
     Callable&& callable) {
-  return std::unique_ptr<internal::VirtualCallable>{
+  return std::unique_ptr<VirtualCallable>{
       new DynamicCallable<Callable>{std::forward<Callable>(callable)}};
 }
 
@@ -120,13 +88,12 @@ static std::unique_ptr<internal::VirtualCallable> MakeDynamicCallable(
 // an instance of the VirtualCallable that invokes that callable and calls the
 // arguments, using perfect forwarding and pass-by-reference.
 template <typename Callable, typename... Args>
-static std::unique_ptr<internal::VirtualCallable> MakeDynamicCallableWithArgs(
+static std::unique_ptr<VirtualCallable> MakeDynamicCallableWithArgs(
     Callable&& callable, Args&&... args) {
   return MakeDynamicCallable(MakeInvoker(std::forward<Callable>(callable),
                                          std::forward<Args>(args)...));
 }
 
-}  // namespace internal
 }  // namespace freertos
 }  // namespace roo_threads
 

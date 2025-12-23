@@ -7,8 +7,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
-#include "roo_threads/impl/freertos/thread.h"
 #include "roo_threads/impl/freertos/config.h"
+#include "roo_threads/impl/freertos/thread.h"
 
 namespace roo_threads {
 namespace freertos {
@@ -25,7 +25,7 @@ namespace {
 struct thread_state {
   thread::attributes attr;
 
-  std::unique_ptr<internal::VirtualCallable> start = nullptr;
+  std::unique_ptr<VirtualCallable> start = nullptr;
   TaskHandle_t task;
   StaticSemaphore_t join_barrier;
   StaticSemaphore_t join_mutex;
@@ -70,7 +70,7 @@ static void run_thread(void* arg) {
 }
 
 void thread::start(const attributes& attributes,
-                   std::unique_ptr<internal::VirtualCallable> start) {
+                   std::unique_ptr<VirtualCallable> start) {
   thread_state* state = new thread_state;
   assert(state != nullptr);
   state->attr = attributes;

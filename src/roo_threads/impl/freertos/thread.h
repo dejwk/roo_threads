@@ -50,30 +50,32 @@ class thread {
 
   thread(thread&& other) noexcept : thread() { swap(other); }
 
-  template <typename Callable, typename... Args,
-            typename = internal::RequireNotSame<Callable, thread>,
-            typename = internal::RequireNotSame<Callable, attributes>>
+  template <
+      typename Callable, typename... Args,
+      typename = typename std::enable_if<!std::is_same<
+          std::remove_reference_t<Callable>, thread::attributes>::value>::type,
+      typename =
+          typename std::enable_if<!std::is_same<Callable, thread>::value>::type>
   explicit thread(Callable&& callable, Args&&... args) {
     static_assert(std::is_invocable<typename std::decay<Callable>::type,
                                     typename std::decay<Args>::type...>::value,
-                  "std::thread argument must be invocable");
-
+                  "roo::thread argument must be invocable");
     start(attributes(),
-          internal::MakeDynamicCallableWithArgs(
-              std::forward<Callable>(callable), std::forward<Args>(args)...));
+          MakeDynamicCallableWithArgs(std::forward<Callable>(callable),
+                                      std::forward<Args>(args)...));
   }
 
   template <typename Callable, typename... Args,
-            typename = internal::RequireNotSame<Callable, thread>>
+            typename = typename std::enable_if<
+                !std::is_same<Callable, thread>::value>::type>
   explicit thread(const attributes& attrs, Callable&& callable,
                   Args&&... args) {
     static_assert(std::is_invocable<typename std::decay<Callable>::type,
                                     typename std::decay<Args>::type...>::value,
-                  "std::thread argument must be invocable");
+                  "roo::thread argument must be invocable");
 
-    start(attrs,
-          internal::MakeDynamicCallableWithArgs(
-              std::forward<Callable>(callable), std::forward<Args>(args)...));
+    start(attrs, MakeDynamicCallableWithArgs(std::forward<Callable>(callable),
+                                             std::forward<Args>(args)...));
   }
 
   ~thread();
@@ -93,8 +95,7 @@ class thread {
   thread::id get_id() const noexcept;
 
  private:
-  void start(const attributes& attributes,
-             std::unique_ptr<internal::VirtualCallable>);
+  void start(const attributes& attributes, std::unique_ptr<VirtualCallable>);
 
   void* state_;
 };
