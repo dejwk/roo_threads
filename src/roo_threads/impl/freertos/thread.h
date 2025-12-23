@@ -7,6 +7,10 @@
 #include "roo_threads/impl/freertos/callable.h"
 #include "roo_time.h"
 
+#define ROO_THREADS_ATTRIBUTES_SUPPORT_PRIORITY
+#define ROO_THREADS_ATTRIBUTES_SUPPORT_NAME
+#define ROO_THREADS_ATTRIBUTES_SUPPORT_STACK_SIZE
+
 namespace roo_threads {
 namespace freertos {
 
@@ -15,6 +19,7 @@ class thread {
   // Turns a pointer into an opaque type.
   class id;
 
+  // Note: attributes are a non-portable extension.
   class attributes {
    public:
     attributes();

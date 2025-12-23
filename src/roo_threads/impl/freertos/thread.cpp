@@ -8,13 +8,15 @@
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "roo_threads/impl/freertos/thread.h"
+#include "roo_threads/impl/freertos/config.h"
 
 namespace roo_threads {
 namespace freertos {
 
 thread::attributes::attributes()
-    : stack_size_(configMINIMAL_STACK_SIZE * sizeof(portSTACK_TYPE)),
-      priority_(1),
+    : stack_size_(ROO_THREADS_FREERTOS_DEFAULT_THREAD_STACK_SIZE *
+                  sizeof(portSTACK_TYPE)),
+      priority_(ROO_THREADS_FREERTOS_DEFAULT_THREAD_PRIORITY),
       joinable_(true),
       name_("roo") {}
 
@@ -32,9 +34,7 @@ struct thread_state {
 
 }  // namespace
 
-void thread::swap(thread& other) noexcept {
-  std::swap(state_, other.state_);
-}
+void thread::swap(thread& other) noexcept { std::swap(state_, other.state_); }
 
 bool thread::joinable() const noexcept {
   thread_state* state = (thread_state*)state_;
