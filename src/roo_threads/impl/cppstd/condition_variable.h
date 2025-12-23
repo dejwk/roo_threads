@@ -48,16 +48,14 @@ class condition_variable {
   cv_status wait_for(unique_lock<mutex>& lock,
                      const roo_time::Duration& duration) {
     static constexpr int64_t kMaxSafeWaitMicros = 10LL * 24 * 3600 * 1000000;
-    if (duration.inMicros() >= kMaxSafeWaitMicros) {
-      // Protecting against overflow, e.g. wait_for(roo_time::Duration::Max()):
-      // never wait for longer than 10 days; spuriously wake up if needed.
-      // Using safely low max duration of 10 days, as ESP32 seems to overflow at
-      // about 24 days.
-      cond_.wait_for(lock.lock_, std::chrono::microseconds(kMaxSafeWaitMicros));
-      return cv_status::no_timeout;
-    }
-    return cond_.wait_for(lock.lock_,
-                          std::chrono::microseconds(duration.inMicros())) ==
+    // Protecting against overflow, e.g. wait_for(roo_time::Duration::Max()):
+    // never wait for longer than 10 days; spuriously wake up if needed.
+    // Using safely low max duration of 10 days, as ESP32 seems to overflow at
+    // about 24 days.
+    uint64_t micros = duration.inMicros() >= kMaxSafeWaitMicros
+                          ? kMaxSafeWaitMicros
+                          : duration.inMicros();
+    return cond_.wait_for(lock.lock_, std::chrono::microseconds(micros)) ==
                    std::cv_status::no_timeout
                ? cv_status::no_timeout
                : cv_status::timeout;

@@ -16,7 +16,7 @@ namespace internal {
 
 // Truncate to half of the representation range, to avoid overflow in the
 // FreeRTOS API, taking into account that tick counter overflows.
-constexpr TickType_t kMaxTicksDelay = 1 << (sizeof(TickType_t) * 8 - 1);
+constexpr TickType_t kMaxTicksDelay = portMAX_DELAY / 2;
 
 inline constexpr TickType_t ToTicks(roo_time::Duration duration) {
   int64_t micros = duration.inMicros();

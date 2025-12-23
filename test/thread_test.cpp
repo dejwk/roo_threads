@@ -43,14 +43,14 @@ TEST(Thread, MoveAssignment) {
 
 TEST(Thread, ThreadIdIsNonZeroAfterStart) {
   roo::thread t([] {});
-  EXPECT_NE(t.get_id(), 0);
+  EXPECT_NE(t.get_id(), roo::thread::id());
   t.join();
 }
 
 TEST(Thread, ThreadIdIsZeroAfterJoin) {
   roo::thread t([] {});
   t.join();
-  EXPECT_EQ(t.get_id(), 0);
+  EXPECT_EQ(t.get_id(), roo::thread::id());
 }
 
 TEST(Thread, JoinableReturnsFalseAfterJoin) {
@@ -105,13 +105,11 @@ TEST(Thread, ThreadWithCustomAttributesByValue) {
 TEST(Thread, CannotJoinTwice) {
   roo::thread t([] {});
   t.join();
-  EXPECT_NO_THROW(t.join());  // Logs error but does not throw.
+  EXPECT_DEATH(t.join(), "");
 }
 
-TEST(Thread, ThreadSelfJoinLogsError) {
-  // This test is limited since self-join is not allowed and logs error.
-  // We just ensure it does not crash.
-  roo::thread t([&] { EXPECT_NO_THROW(t.join()); });
+TEST(Thread, ThreadSelfJoinCrashhes) {
+  roo::thread t([&] { EXPECT_DEATH(t.join(), ""); });
   t.join();
 }
 
@@ -166,7 +164,7 @@ TEST(Thread, ThreadRunsWithConstReferenceArgument) {
 }
 TEST(ThisThread, GetIdReturnsNonZero) {
   roo::thread::id main_id = roo::this_thread::get_id();
-  EXPECT_NE(main_id, 0);
+  EXPECT_NE(main_id, roo::thread::id());
 }
 
 TEST(ThisThread, YieldDoesNotThrow) {

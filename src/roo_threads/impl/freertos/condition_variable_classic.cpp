@@ -38,8 +38,6 @@ void condition_variable_classic::wait(unique_lock<mutex>& lock) noexcept {
 
 cv_status condition_variable_classic::wait_until(unique_lock<mutex>& lock,
                                                  const roo_time::Uptime& when) {
-  TickType_t deadline =
-      xTaskGetTickCount() + internal::ToTicks(when - roo_time::Uptime::Now());
   {
     lock_guard<mutex> guard(mutex_);
     ++waitcount_;

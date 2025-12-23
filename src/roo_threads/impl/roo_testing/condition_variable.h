@@ -51,8 +51,7 @@ class condition_variable {
       // never wait for longer than 10 days; spuriously wake up if needed.
       // Using safely low max duration of 10 days, as ESP32 seems to overflow at
       // about 24 days.
-      cond_.wait_for(lock, std::chrono::microseconds(kMaxSafeWaitMicros));
-      return cv_status::no_timeout;
+      return cond_.wait_for(lock, std::chrono::microseconds(kMaxSafeWaitMicros));
     }
     return cond_.wait_for(lock,
                           std::chrono::microseconds(duration.inMicros())) ==
