@@ -7,7 +7,7 @@
 #ifndef ROO_THREADS_SINGLETHREADED
 #if (defined ROO_TESTING)
 #define ROO_THREADS_USE_FREERTOS
-#elif (defined ESP32)
+#elif (defined ESP32) || (defined ESP8266) || (defined ESP_PLATFORM)
 #if ROO_THREADS_ESP32_PREFER_CPPSTD
 #define ROO_THREADS_USE_CPPSTD
 #else

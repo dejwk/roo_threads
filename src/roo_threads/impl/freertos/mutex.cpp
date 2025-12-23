@@ -20,7 +20,7 @@ mutex::mutex() noexcept {
 
 #if ROO_THREADS_FREERTOS_LAZY_INITIALIZE
 
-#if defined(ESP32) && defined(configNUM_CORES)
+#if (defined(ESP32) || defined(ESP8266) || defined(ESP_PLATFORM)) && defined(configNUM_CORES)
 #if configNUM_CORES > 1
 static portMUX_TYPE s_mutex_init_lock = portMUX_INITIALIZER_UNLOCKED;
 #define mutexENTER_CRITICAL() portENTER_CRITICAL(&s_mutex_init_lock)

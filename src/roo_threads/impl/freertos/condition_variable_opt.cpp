@@ -7,7 +7,7 @@
 namespace roo_threads {
 namespace freertos {
 
-#if defined(ESP32) && defined(configNUM_CORES)
+#if (defined(ESP32) || defined(ESP8266) || defined(ESP_PLATFORM)) && defined(configNUM_CORES)
 #if configNUM_CORES > 1
 static portMUX_TYPE s_cond_lock = portMUX_INITIALIZER_UNLOCKED;
 #define condENTER_CRITICAL() portENTER_CRITICAL(&s_cond_lock)
