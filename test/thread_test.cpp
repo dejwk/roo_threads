@@ -108,8 +108,9 @@ TEST(Thread, CannotJoinTwice) {
   EXPECT_DEATH(t.join(), "");
 }
 
-TEST(Thread, ThreadSelfJoinCrashhes) {
+TEST(Thread, ThreadSelfJoinCrashes) {
   roo::thread t([&] { EXPECT_DEATH(t.join(), ""); });
+  roo::this_thread::yield();
   t.join();
 }
 
