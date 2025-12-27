@@ -1,6 +1,7 @@
 #include "roo_threads/thread.h"
 
 #include "gtest/gtest.h"
+#include "roo_threads/atomic.h"
 #include "roo_threads/mutex.h"
 
 TEST(Thread, SimpleStartAndJoin) {
@@ -9,7 +10,7 @@ TEST(Thread, SimpleStartAndJoin) {
 }
 
 TEST(Thread, StartAndJoinWithReturnValue) {
-  std::atomic<int> value{0};
+  roo::atomic<int> value{0};
   roo::thread t([&] { value = 42; });
   t.join();
   EXPECT_EQ(value.load(), 42);
@@ -17,7 +18,7 @@ TEST(Thread, StartAndJoinWithReturnValue) {
 
 TEST(Thread, StartAndJoinMultipleTimes) {
   for (int i = 0; i < 5; ++i) {
-    std::atomic<int> value{0};
+    roo::atomic<int> value{0};
     roo::thread t([&] { value = 42; });
     t.join();
     EXPECT_EQ(value.load(), 42);
@@ -25,7 +26,7 @@ TEST(Thread, StartAndJoinMultipleTimes) {
 }
 
 TEST(Thread, MoveConstructor) {
-  std::atomic<int> value{0};
+  roo::atomic<int> value{0};
   roo::thread t1([&] { value = 42; });
   roo::thread t2(std::move(t1));
   t2.join();
@@ -33,7 +34,7 @@ TEST(Thread, MoveConstructor) {
 }
 
 TEST(Thread, MoveAssignment) {
-  std::atomic<int> value{0};
+  roo::atomic<int> value{0};
   roo::thread t1([&] { value = 42; });
   roo::thread t2;
   t2 = std::move(t1);
@@ -60,7 +61,7 @@ TEST(Thread, JoinableReturnsFalseAfterJoin) {
 }
 
 TEST(Thread, ThreadRunsLambdaWithArguments) {
-  std::atomic<int> value{0};
+  roo::atomic<int> value{0};
   int arg = 5;
   roo::thread t([&](int x) { value = x * 2; }, arg);
   t.join();
@@ -68,7 +69,7 @@ TEST(Thread, ThreadRunsLambdaWithArguments) {
 }
 
 TEST(Thread, MultipleThreadsRunConcurrently) {
-  std::atomic<int> counter{0};
+  roo::atomic<int> counter{0};
   roo::thread t1([&] { counter++; });
   roo::thread t2([&] { counter++; });
   t1.join();
@@ -81,7 +82,7 @@ TEST(Thread, ThreadWithCustomAttributes) {
   attr.set_stack_size(2048);
   attr.set_priority(2);
   attr.set_name("custom_thread");
-  std::atomic<bool> ran{false};
+  roo::atomic<bool> ran{false};
   roo::thread t(attr, [&] { ran = true; });
   t.join();
   EXPECT_TRUE(ran.load());
@@ -96,7 +97,7 @@ roo::thread::attributes CreateAttr() {
 }
 
 TEST(Thread, ThreadWithCustomAttributesByValue) {
-  std::atomic<bool> ran{false};
+  roo::atomic<bool> ran{false};
   roo::thread t(CreateAttr(), [&] { ran = true; });
   t.join();
   EXPECT_TRUE(ran.load());
@@ -114,10 +115,10 @@ TEST(Thread, ThreadSelfJoinCrashes) {
   t.join();
 }
 
-void func(int x, std::atomic<int>* value) { *value = x + 1; }
+void func(int x, roo::atomic<int>* value) { *value = x + 1; }
 
 TEST(Thread, ThreadRunsFunctionPointerWithArgument) {
-  std::atomic<int> value{0};
+  roo::atomic<int> value{0};
   roo::thread t(func, 41, &value);
   t.join();
   EXPECT_EQ(value.load(), 42);
@@ -135,14 +136,14 @@ TEST(Thread, ThreadRunsMemberFunctionWithArgument) {
 }
 
 TEST(Thread, ThreadRunsLambdaWithMultipleArguments) {
-  std::atomic<int> value{0};
+  roo::atomic<int> value{0};
   roo::thread t([&](int x, int y) { value = x + y; }, 10, 32);
   t.join();
   EXPECT_EQ(value.load(), 42);
 }
 
 TEST(Thread, ThreadRunsStdFunctionWithArgument) {
-  std::atomic<int> value{0};
+  roo::atomic<int> value{0};
   std::function<void(int)> f = [&](int x) { value = x * x; };
   roo::thread t(f, 6);
   t.join();
@@ -158,7 +159,7 @@ TEST(Thread, ThreadRunsWithReferenceArgument) {
 
 TEST(Thread, ThreadRunsWithConstReferenceArgument) {
   const int x = 7;
-  std::atomic<int> value{0};
+  roo::atomic<int> value{0};
   roo::thread t([&](const int& y) { value = y * 2; }, std::cref(x));
   t.join();
   EXPECT_EQ(value.load(), 14);

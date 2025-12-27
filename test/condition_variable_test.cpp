@@ -1,6 +1,7 @@
 #include "roo_threads/condition_variable.h"
 
 #include "gtest/gtest.h"
+#include "roo_threads/atomic.h"
 #include "roo_threads/condition_variable.h"
 #include "roo_threads/mutex.h"
 #include "roo_threads/thread.h"
@@ -10,7 +11,7 @@ TEST(ConditionVariableTest, NotifiesOneThread) {
   roo::condition_variable cv;
   bool ready = false;
 
-  std::atomic<bool> thread_ran{false};
+  roo::atomic<bool> thread_ran{false};
   roo::thread t([&] {
     roo::unique_lock<roo::mutex> lock(m);
     cv.wait(lock, [&] { return ready; });
@@ -32,7 +33,7 @@ TEST(ConditionVariableTest, NotifiesAllThreads) {
   roo::condition_variable cv;
   bool ready = false;
 
-  std::atomic<int> threads_ran{0};
+  roo::atomic<int> threads_ran{0};
   auto worker = [&] {
     roo::unique_lock<roo::mutex> lock(m);
     cv.wait(lock, [&] { return ready; });
@@ -57,7 +58,7 @@ TEST(ConditionVariableTest, WaitForTimesOut) {
   roo::mutex m;
   roo::condition_variable cv;
 
-  std::atomic<bool> timed_out{false};
+  roo::atomic<bool> timed_out{false};
   roo::thread t([&] {
     roo::unique_lock<roo::mutex> lock(m);
     auto start = roo_time::Uptime::Now();
@@ -75,8 +76,8 @@ TEST(ConditionVariableTest, WaitForNotifiesBeforeTimeout) {
   roo::mutex m;
   roo::condition_variable cv;
 
-  std::atomic<bool> started{false};
-  std::atomic<bool> notified{false};
+  roo::atomic<bool> started{false};
+  roo::atomic<bool> notified{false};
   roo::thread t([&] {
     roo::unique_lock<roo::mutex> lock(m);
     started = true;
@@ -95,8 +96,8 @@ TEST(ConditionVariableTest, WaitForDoesNotOverflow) {
   roo::mutex m;
   roo::condition_variable cv;
 
-  std::atomic<bool> started{false};
-  std::atomic<bool> notified{false};
+  roo::atomic<bool> started{false};
+  roo::atomic<bool> notified{false};
   roo::thread t([&] {
     roo::unique_lock<roo::mutex> lock(m);
     started = true;
@@ -115,9 +116,9 @@ TEST(ConditionVariableTest, WaitForWithPredicateDoesNotOverflow) {
   roo::mutex m;
   roo::condition_variable cv;
 
-  std::atomic<bool> started{false};
-  std::atomic<bool> notified{false};
-  std::atomic<bool> ready{false};
+  roo::atomic<bool> started{false};
+  roo::atomic<bool> notified{false};
+  roo::atomic<bool> ready{false};
   roo::thread t([&] {
     roo::unique_lock<roo::mutex> lock(m);
     started = true;
