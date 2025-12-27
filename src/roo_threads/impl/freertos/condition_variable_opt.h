@@ -13,7 +13,12 @@
 namespace roo_threads {
 namespace freertos {
 
-static constexpr int kMaxWaitingThreads = 8;
+#ifndef ROO_THREADS_FREERTOS_CONDITION_VARIABLE_MAX_WAITING_THREADS
+#define ROO_THREADS_FREERTOS_CONDITION_VARIABLE_MAX_WAITING_THREADS 8
+#endif
+
+static constexpr int kMaxWaitingThreads =
+    ROO_THREADS_FREERTOS_CONDITION_VARIABLE_MAX_WAITING_THREADS;
 
 class condition_variable_opt {
  public:
