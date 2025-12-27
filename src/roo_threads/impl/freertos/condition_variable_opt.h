@@ -10,10 +10,10 @@
 #include "roo_threads/impl/freertos/mutex.h"
 #include "roo_threads/impl/freertos/timeutil.h"
 
-static constexpr int kMaxWaitingThreads = 8;
-
 namespace roo_threads {
 namespace freertos {
+
+static constexpr int kMaxWaitingThreads = 8;
 
 class condition_variable_opt {
  public:
