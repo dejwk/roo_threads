@@ -7,9 +7,9 @@
 #include "roo_threads/impl/freertos/callable.h"
 #include "roo_time.h"
 
-#define ROO_THREADS_ATTRIBUTES_SUPPORT_PRIORITY
-#define ROO_THREADS_ATTRIBUTES_SUPPORT_NAME
-#define ROO_THREADS_ATTRIBUTES_SUPPORT_STACK_SIZE
+#define ROO_THREADS_ATTRIBUTES_SUPPORT_PRIORITY 1
+#define ROO_THREADS_ATTRIBUTES_SUPPORT_NAME 1
+#define ROO_THREADS_ATTRIBUTES_SUPPORT_STACK_SIZE 1
 
 namespace roo_threads {
 namespace freertos {
