@@ -4,6 +4,8 @@
 
 #ifdef ROO_THREADS_USE_FREERTOS
 
+#include <limits>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "roo_threads/impl/freertos/timeutil.h"
