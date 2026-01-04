@@ -6,7 +6,7 @@
 
 #include "roo_threads/impl/freertos/config.h"
 
-#if ROO_THREADS_FREERTOS_USE_OPTIMIZED_CONDITION_VARIABLE == 1
+#if ROO_THREADS_FREERTOS_USE_OPTIMIZED_CONDITION_VARIABLE
 
 #include "roo_threads/impl/freertos/condition_variable_opt.h"
 namespace roo_threads {
