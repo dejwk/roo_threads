@@ -9,8 +9,6 @@ Not all of the standard concurrency functionality is ported (yet), but there sho
 
 The library has been tested on the ESP32 family, and on Raspberry Pi Pico RP2040 with the FreeRTOS SMP OS. The implementation that uses FreeRTOS primitives is generic, and should be easily portable to other platforms supporting FreeRTOS.
 
-On ESP32, the library delegates to the standard C++ library as much as possible.
-
 # Basic usage
 
 The minimalistic Arduino program is as follows:
