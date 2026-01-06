@@ -53,7 +53,7 @@ For more details, see attached examples.
 
 No special configuration is required; the library works out-of-the-box.
 
-The library can be mixed with the concurrency utilities from the standard library (e.g. <atomic>, <mutex>, etc.), and with native FreeRTOS APIs (e.g. xTaskCreate, etc.), since it uses the same underlying primitives.
+The library can be mixed with the concurrency utilities from the standard library (e.g. `<atomic>`, `<mutex>`, etc.), and with native FreeRTOS APIs (e.g. `xTaskCreate`, etc.), since it uses the same underlying primitives.
 
 ## Rasbperry Pi Pico
 
