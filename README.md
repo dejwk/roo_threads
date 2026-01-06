@@ -1,13 +1,13 @@
 This library provides concurrency primitives (thread, mutex, condition variable, locks, semaphores, latches, etc.) intended for use on microcontrollers.
 
-They generally mimic C++ standard, with a few small differences for a better fit for embedded devices:
-* they are defined in the `roo` namespace,
+The library has been tested on the ESP32 family (under Arduino as well as raw esp-idf), and on Raspberry Pi Pico RP2040 with the FreeRTOS SMP OS. The FreeRTOS-based implementation is generic, and should be easily portable to other platforms supporting FreeRTOS.
+
+The code mimics the C++ standard concurrency library, with a few small differences, mainly to better support embedded devices:
+* the classes are defined in the `roo` namespace,
 * they do not depend on `<chrono>`, but on `roo_time`,
-* some important thread attributes are supported; specifically, it is possible to set stack size, priority, and name when creating a thread.
+* some useful thread attributes are directly supported; specifically, it is possible to set stack size, priority, and name when creating a thread.
 
 Not all of the standard concurrency functionality is ported (yet), but there should be enough here to get you going. Contributions are welcome!
-
-The library has been tested on the ESP32 family, and on Raspberry Pi Pico RP2040 with the FreeRTOS SMP OS. The implementation that uses FreeRTOS primitives is generic, and should be easily portable to other platforms supporting FreeRTOS.
 
 # Basic usage
 
@@ -57,7 +57,7 @@ The library can be mixed with the concurrency utilities from the standard librar
 
 ## Rasbperry Pi Pico
 
-You must install the FreeRTOS OS in order to be able to use `roo_threads`.
+You must install the FreeRTOS OS in order to be able to use this library.
 
 For Arduino IDE, see [this video](https://www.youtube.com/watch?v=JfVnUlGTBi8).
 
@@ -80,7 +80,7 @@ The library can be mixed with the native FreeRTOS APIs (e.g. xTaskCreate, etc.),
 ## Compatibility with single-threaded platforms
 
 As a fallback, the library can be compiled in a 'single-threaded' mode, in which the functionality to start new threads is not available, but a lot of mutex/lock functionality
-is implemented as a no-op. It allows you to implement thread-safe libraries that still compile and work on single-threaded platforms.
+is mocked as a no-op. It allows you to implement thread-safe libraries that still compile and work on single-threaded platforms.
 
 ## Testing
 

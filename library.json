@@ -1,6 +1,6 @@
 {
     "name": "roo_threads",
-    "description": "Experimental portable threading library for microcontrollers. Targeting Espressif family primarily, and intended to support local emulation using roo_testing.",
+    "description": "Portable threading library for microcontrollers (ESP32 family, RP2040 SMP). Should be easy to port to anything that uses FreeRTOS.",
     "authors": [
         {
             "name": "Dejwk",
