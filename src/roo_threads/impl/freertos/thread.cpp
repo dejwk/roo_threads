@@ -14,8 +14,7 @@ namespace roo_threads {
 namespace freertos {
 
 thread::attributes::attributes()
-    : stack_size_(ROO_THREADS_FREERTOS_DEFAULT_THREAD_STACK_SIZE *
-                  sizeof(portSTACK_TYPE)),
+    : stack_size_(ROO_THREADS_FREERTOS_DEFAULT_THREAD_STACK_SIZE),
       priority_(ROO_THREADS_FREERTOS_DEFAULT_THREAD_PRIORITY),
       joinable_(true),
       name_("roo") {}
@@ -29,7 +28,6 @@ struct thread_state {
   TaskHandle_t task;
   StaticSemaphore_t join_barrier;
   StaticSemaphore_t join_mutex;
-  void* result;
 };
 
 }  // namespace
@@ -59,7 +57,9 @@ thread::id thread::get_id() const noexcept {
 
 static void run_thread(void* arg) {
   thread_state* p = (thread_state*)arg;
-  p->start->call();
+  std::unique_ptr<VirtualCallable> start = std::move(p->start);
+  start->call();
+  start = nullptr;
   if (p->attr.joinable()) {
     xSemaphoreGive((SemaphoreHandle_t)&p->join_barrier);
     vTaskSuspend(nullptr);
@@ -79,10 +79,11 @@ void thread::start(const attributes& attributes,
     xSemaphoreCreateMutexStatic(&state->join_mutex);
     xSemaphoreCreateBinaryStatic(&state->join_barrier);
   }
+  uint32_t stack_size_freertos =
+      (uint32_t)(state->attr.stack_size() / sizeof(portSTACK_TYPE));
   // Note: we expect xTaskCreate to make a memory barrier, so that if the task
   // gets scheduled on a different core, it still sees fully initialized state.
-  if (xTaskCreate(run_thread, state->attr.name(),
-                  (uint16_t)(state->attr.stack_size() / sizeof(portSTACK_TYPE)),
+  if (xTaskCreate(run_thread, state->attr.name(), stack_size_freertos,
                   (void*)state, state->attr.priority(),
                   &state->task) != pdPASS) {
     delete state;
