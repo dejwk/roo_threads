@@ -10,8 +10,13 @@
 
 #include "roo_threads/impl/freertos/condition_variable_opt.h"
 namespace roo_threads {
+/// @brief Backend namespace using FreeRTOS synchronization primitives.
 namespace freertos {
 
+/// @ingroup roo_threads_api_condition_variable
+/// @brief FreeRTOS optimized backend implementation of
+/// `roo::condition_variable`.
+/// @copydoc roo_threads::doc::condition_variable
 using condition_variable = condition_variable_opt;
 
 }  // namespace freertos
@@ -21,7 +26,11 @@ using condition_variable = condition_variable_opt;
 
 #include "roo_threads/impl/freertos/condition_variable_classic.h"
 namespace roo_threads {
+/// @brief Backend namespace using FreeRTOS synchronization primitives.
 namespace freertos {
+/// @ingroup roo_threads_api_condition_variable
+/// @brief FreeRTOS classic backend implementation of `roo::condition_variable`.
+/// @copydoc roo_threads::doc::condition_variable
 using condition_variable = condition_variable_classic;
 
 }  // namespace freertos

@@ -12,16 +12,28 @@
 #include <thread>
 
 namespace roo_threads {
+
+/// @brief Backend namespace using C++ standard library threading primitives.
 namespace cppstd {
 
+/// @ingroup roo_threads_api_thread
+/// @brief C++ standard library backend implementation of `roo::thread`.
+/// @copydoc roo_threads::doc::thread
 using thread = std::thread;
 
 namespace this_thread {
 
+/// @ingroup roo_threads_api_thread
+/// @copydoc roo_threads::doc::this_thread::get_id
 inline thread::id get_id() noexcept { return std::this_thread::get_id(); }
 
+/// @ingroup roo_threads_api_thread
+/// @copydoc roo_threads::doc::this_thread::yield
 inline void yield() noexcept { std::this_thread::yield(); }
 
+/// @ingroup roo_threads_api_thread
+/// @copydoc roo_threads::doc::this_thread::sleep_for
+/// @note Wait duration is clamped to a safe upper bound to avoid overflow.
 inline void sleep_for(const roo_time::Duration& duration) {
   static constexpr auto kMaxSafeWaitDelay =
       std::chrono::microseconds(10LL * 24 * 3600 * 1000000);
@@ -36,6 +48,8 @@ inline void sleep_for(const roo_time::Duration& duration) {
   std::this_thread::sleep_for(delay);
 }
 
+/// @ingroup roo_threads_api_thread
+/// @copydoc roo_threads::doc::this_thread::sleep_until
 inline void sleep_until(const roo_time::Uptime& when) {
   sleep_for(when - roo_time::Uptime::Now());
 }
