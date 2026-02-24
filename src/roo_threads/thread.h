@@ -11,19 +11,26 @@
 
 namespace roo {
 
+/// @brief Thread abstraction for the selected backend.
 using thread = ::roo_threads::freertos::thread;
 namespace this_thread {
 
+/// @brief Returns the id of the calling thread.
 inline thread::id get_id() noexcept {
   return roo_threads::freertos::this_thread::get_id();
 }
 
+/// @brief Hints the scheduler to switch to another thread.
 inline void yield() noexcept { roo_threads::freertos::this_thread::yield(); }
 
+/// @brief Suspends execution for at least the specified duration.
+/// @param duration sleep interval.
 inline void sleep_for(const roo_time::Duration& duration) {
   roo_threads::freertos::this_thread::sleep_for(duration);
 }
 
+/// @brief Suspends execution until the specified uptime point.
+/// @param when wake-up time.
 inline void sleep_until(const roo_time::Uptime& when) {
   roo_threads::freertos::this_thread::sleep_until(when);
 }
@@ -38,20 +45,27 @@ inline void sleep_until(const roo_time::Uptime& when) {
 
 namespace roo {
 
+/// @brief Thread abstraction for the selected backend.
 using thread = roo_threads::cppstd::thread;
 
 namespace this_thread {
 
+/// @brief Returns the id of the calling thread.
 inline thread::id get_id() noexcept {
   return roo_threads::cppstd::this_thread::get_id();
 }
 
+/// @brief Hints the scheduler to switch to another thread.
 inline void yield() noexcept { roo_threads::cppstd::this_thread::yield(); }
 
+/// @brief Suspends execution for at least the specified duration.
+/// @param duration sleep interval.
 inline void sleep_for(const roo_time::Duration& duration) {
   roo_threads::cppstd::this_thread::sleep_for(duration);
 }
 
+/// @brief Suspends execution until the specified uptime point.
+/// @param when wake-up time.
 inline void sleep_until(const roo_time::Uptime& when) {
   roo_threads::cppstd::this_thread::sleep_until(when);
 }
@@ -66,20 +80,27 @@ inline void sleep_until(const roo_time::Uptime& when) {
 
 namespace roo {
 
+/// @brief Thread abstraction for the selected backend.
 using thread = ::roo_threads::roo_testing::thread;
 
 namespace this_thread {
 
+/// @brief Returns the id of the calling thread.
 inline thread::id get_id() noexcept {
   return roo_threads::roo_testing::this_thread::get_id();
 }
 
+/// @brief Hints the scheduler to switch to another thread.
 inline void yield() noexcept { roo_threads::roo_testing::this_thread::yield(); }
 
+/// @brief Suspends execution for at least the specified duration.
+/// @param duration sleep interval.
 inline void sleep_for(const roo_time::Duration& duration) {
   roo_threads::roo_testing::this_thread::sleep_for(duration);
 }
 
+/// @brief Suspends execution until the specified uptime point.
+/// @param when wake-up time.
 inline void sleep_until(const roo_time::Uptime& when) {
   roo_threads::roo_testing::this_thread::sleep_until(when);
 }
@@ -94,22 +115,29 @@ inline void sleep_until(const roo_time::Uptime& when) {
 
 namespace roo {
 
+/// @brief Thread abstraction for the selected backend.
 using thread = roo_threads::singlethreaded::thread;
 
 namespace this_thread {
 
+/// @brief Returns the id of the calling thread.
 inline thread::id get_id() noexcept {
   return roo_threads::singlethreaded::this_thread::get_id();
 }
 
+/// @brief Hints the scheduler to switch to another thread.
 inline void yield() noexcept {
   roo_threads::singlethreaded::this_thread::yield();
 }
 
+/// @brief Suspends execution for at least the specified duration.
+/// @param duration sleep interval.
 inline void sleep_for(const roo_time::Duration& duration) {
   roo_threads::singlethreaded::this_thread::sleep_for(duration);
 }
 
+/// @brief Suspends execution until the specified uptime point.
+/// @param when wake-up time.
 inline void sleep_until(const roo_time::Uptime& when) {
   roo_threads::singlethreaded::this_thread::sleep_until(when);
 }

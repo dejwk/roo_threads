@@ -8,7 +8,9 @@
 
 namespace roo {
 
+/// @brief Result of timed condition-variable wait operations.
 using cv_status = ::roo_threads::cppstd::cv_status;
+/// @brief Condition variable used to block and wake waiting threads.
 using condition_variable = ::roo_threads::cppstd::condition_variable;
 
 }  // namespace roo
@@ -19,7 +21,9 @@ using condition_variable = ::roo_threads::cppstd::condition_variable;
 
 namespace roo {
 
+/// @brief Result of timed condition-variable wait operations.
 using cv_status = ::roo_threads::freertos::cv_status;
+/// @brief Condition variable used to block and wake waiting threads.
 using condition_variable = ::roo_threads::freertos::condition_variable;
 
 }  // namespace roo
@@ -30,7 +34,9 @@ using condition_variable = ::roo_threads::freertos::condition_variable;
 
 namespace roo {
 
+/// @brief Result of timed condition-variable wait operations.
 using cv_status = ::roo_threads::roo_testing::cv_status;
+/// @brief Condition variable used to block and wake waiting threads.
 using condition_variable = ::roo_threads::roo_testing::condition_variable;
 
 }  // namespace roo
@@ -41,7 +47,9 @@ using condition_variable = ::roo_threads::roo_testing::condition_variable;
 
 namespace roo {
 
+/// @brief Result of timed condition-variable wait operations.
 using cv_status = ::roo_threads::singlethreaded::cv_status;
+/// @brief Condition variable used to block and wake waiting threads.
 using condition_variable = ::roo_threads::singlethreaded::condition_variable;
 
 }  // namespace roo
