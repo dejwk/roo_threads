@@ -4,8 +4,8 @@
 
 #if (defined ROO_THREADS_USE_FREERTOS)
 
-// If both cppstd and freertos are available (e.g. on ESP32), we prefer
-// freertos, because it offers more control over thread attributes.
+/// If both cppstd and FreeRTOS are available (e.g. ESP32), prefer FreeRTOS
+/// because it offers more control over thread attributes.
 
 #include "roo_threads/impl/freertos/thread.h"
 

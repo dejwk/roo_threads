@@ -20,7 +20,7 @@ using defer_lock_t = ::roo_threads::cppstd::defer_lock_t;
 using try_to_lock_t = ::roo_threads::cppstd::try_to_lock_t;
 using adopt_lock_t = ::roo_threads::cppstd::adopt_lock_t;
 
-// Tags for the unique_lock constructor.
+/// Tags for `unique_lock` constructor overload selection.
 
 inline constexpr defer_lock_t defer_lock{};
 inline constexpr try_to_lock_t try_to_lock{};
@@ -44,7 +44,7 @@ using unique_lock = ::roo_threads::freertos::unique_lock<Mutex>;
 using defer_lock_t = ::roo_threads::freertos::defer_lock_t;
 using try_to_lock_t = ::roo_threads::freertos::try_to_lock_t;
 using adopt_lock_t = ::roo_threads::freertos::adopt_lock_t;
-// Tags for the unique_lock constructor.
+/// Tags for `unique_lock` constructor overload selection.
 
 inline constexpr defer_lock_t defer_lock{};
 inline constexpr try_to_lock_t try_to_lock{};
@@ -70,7 +70,7 @@ using defer_lock_t = ::roo_threads::roo_testing::defer_lock_t;
 using try_to_lock_t = ::roo_threads::roo_testing::try_to_lock_t;
 using adopt_lock_t = ::roo_threads::roo_testing::adopt_lock_t;
 
-// Tags for the unique_lock constructor.
+/// Tags for `unique_lock` constructor overload selection.
 
 inline constexpr defer_lock_t defer_lock{};
 inline constexpr try_to_lock_t try_to_lock{};
