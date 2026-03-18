@@ -8,7 +8,7 @@
 #if (defined ROO_TESTING)
 #define ROO_THREADS_USE_FREERTOS
 #define ROO_THREADS_ATOMIC_USE_CPPSTD
-#elif (defined ESP32) || (defined ESP8266) || (defined ESP_PLATFORM)
+#elif (defined ESP32) || (defined ESP_PLATFORM)
 #if ROO_THREADS_ESP32_PREFER_CPPSTD
 #define ROO_THREADS_USE_CPPSTD
 #else
