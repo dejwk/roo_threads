@@ -78,7 +78,7 @@ namespace this_thread {
 
 /// @ingroup roo_threads_api_thread
 /// @copydoc roo_threads::doc::this_thread::get_id
-thread::id get_id() noexcept { return thread::id(1); }
+inline thread::id get_id() noexcept { return thread::id(1); }
 
 /// @ingroup roo_threads_api_thread
 /// @copydoc roo_threads::doc::this_thread::yield
