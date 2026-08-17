@@ -3,6 +3,16 @@
 load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("@rules_cc//cc:cc_test.bzl", "cc_test")
 
+TEST_MAIN_DEPS = select({
+    "@roo_testing//roo_testing/platforms:is_arduino": [
+        "@roo_testing//:arduino_gtest_main",
+    ],
+    "@roo_testing//roo_testing/platforms:is_idf": [
+        "@roo_testing//:esp_idf_gtest_main",
+    ],
+    "//conditions:default": [],
+})
+
 cc_library(
     name = "roo_threads",
     srcs = glob(
@@ -35,28 +45,19 @@ cc_test(
     name = "mutex_test",
     srcs = ["test/mutex_test.cpp"],
     linkstatic = 1,
-    deps = [
-        ":roo_threads",
-        "@roo_testing//roo_testing:arduino_gtest_main",
-    ],
+    deps = [":roo_threads"] + TEST_MAIN_DEPS,
 )
 
 cc_test(
     name = "condition_variable_test",
     srcs = ["test/condition_variable_test.cpp"],
     linkstatic = 1,
-    deps = [
-        ":roo_threads",
-        "@roo_testing//roo_testing:arduino_gtest_main",
-    ],
+    deps = [":roo_threads"] + TEST_MAIN_DEPS,
 )
 
 cc_test(
     name = "thread_test",
     srcs = ["test/thread_test.cpp"],
     linkstatic = 1,
-    deps = [
-        ":roo_threads",
-        "@roo_testing//roo_testing:arduino_gtest_main",
-    ],
+    deps = [":roo_threads"] + TEST_MAIN_DEPS,
 )
