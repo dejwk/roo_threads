@@ -12,18 +12,23 @@ cc_library(
         ],
         exclude = ["test/**"],
     ),
-    defines = [
-        "ROO_TESTING",
-    ],
     includes = [
         "src",
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@roo_testing//roo_testing:arduino",
-        "@roo_testing//roo_testing/sys",
         "@roo_time",
-    ],
+    ] + select({
+        "@roo_testing//roo_testing/platforms:is_roo_testing": [
+            "@roo_testing//roo_testing/sys",
+        ],
+        "//conditions:default": [],
+    }) + select({
+        "@roo_testing//roo_testing/platforms:is_arduino": [
+            "@roo_testing//:arduino",
+        ],
+        "//conditions:default": [],
+    }),
 )
 
 cc_test(
