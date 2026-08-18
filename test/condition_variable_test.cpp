@@ -85,8 +85,12 @@ TEST(ConditionVariableTest, WaitForNotifiesBeforeTimeout) {
                 roo::cv_status::no_timeout);
   });
 
-  // Let's give the worker some time to start and block on the CV.
-  roo::this_thread::sleep_for(roo_time::Millis(50));
+  while (!started.load()) roo::this_thread::yield();
+  {
+    // The worker sets started while holding m. Acquiring m here proves that
+    // wait_for() has queued the worker and released the mutex.
+    roo::unique_lock<roo::mutex> lock(m);
+  }
   cv.notify_one();
   t.join();
   EXPECT_TRUE(notified);
@@ -105,8 +109,10 @@ TEST(ConditionVariableTest, WaitForDoesNotOverflow) {
                 roo::cv_status::no_timeout);
   });
 
-  // Let's give the worker some time to start and block on the CV.
-  roo::this_thread::sleep_for(roo_time::Millis(50));
+  while (!started.load()) roo::this_thread::yield();
+  {
+    roo::unique_lock<roo::mutex> lock(m);
+  }
   cv.notify_one();
   t.join();
   EXPECT_TRUE(notified);
@@ -126,8 +132,10 @@ TEST(ConditionVariableTest, WaitForWithPredicateDoesNotOverflow) {
                            [&] { return ready.load(); });
   });
 
-  // Let's give the worker some time to start and block on the CV.
-  roo::this_thread::sleep_for(roo_time::Millis(50));
+  while (!started.load()) roo::this_thread::yield();
+  {
+    roo::unique_lock<roo::mutex> lock(m);
+  }
   ready = true;
   cv.notify_one();
   t.join();
