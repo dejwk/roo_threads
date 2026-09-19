@@ -1,3 +1,12 @@
+# roo_threads 1.2.8
+
+- Upgraded `roo_time` to 2.0.0 in Bazel and raised the PlatformIO minimum requirement to 2.0.0.
+- Updated `roo_testing` and the shared CI workflow to 2.1.2.
+- Updated Bazel dependencies: `rules_cc` to 0.2.25 and GoogleTest to 1.18.0.bcr.1.
+- Added consolidated release notes for previous versions.
+
+---
+
 # [roo_threads 1.2.7](https://github.com/dejwk/roo_threads/releases/tag/1.2.7)
 
 Published 2026-08-29.
