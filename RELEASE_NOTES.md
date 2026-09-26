@@ -1,3 +1,11 @@
+# roo_threads 1.2.9
+
+- Upgrade `roo_time` to 2.0.1 in Bazel and require ≥2.0.1 in PlatformIO.
+- Upgrade `roo_testing` from 2.1.2 to 2.3.0.
+- Automatically select the ESP-IDF frontend when running ESP-IDF example targets through the Bazel wrapper.
+
+---
+
 # roo_threads 1.2.8
 
 - Upgraded `roo_time` to 2.0.0 in Bazel and raised the PlatformIO minimum requirement to 2.0.0.
