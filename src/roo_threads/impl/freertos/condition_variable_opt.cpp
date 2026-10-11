@@ -7,7 +7,8 @@
 namespace roo_threads {
 namespace freertos {
 
-#if (defined(ESP32) || defined(ESP8266) || defined(ESP_PLATFORM)) && defined(configNUM_CORES)
+#if (defined(ESP32) || defined(ESP8266) || defined(ESP_PLATFORM)) && \
+    defined(configNUM_CORES)
 #if configNUM_CORES > 1
 static portMUX_TYPE s_cond_lock = portMUX_INITIALIZER_UNLOCKED;
 #define condENTER_CRITICAL() portENTER_CRITICAL(&s_cond_lock)
@@ -71,6 +72,7 @@ void condition_variable_opt::wait(unique_lock<mutex>& lock) noexcept {
   lock.unlock();
   condEXIT_CRITICAL();
   assert(queued);  // Checks for maximum number of queued threads reached.
+  (void)queued;
 
   // Wait on the condition variable.
   // bool signaled =
@@ -107,6 +109,7 @@ cv_status condition_variable_opt::wait_until_impl(unique_lock<mutex>& lock,
   condEXIT_CRITICAL();
   cv_status status = cv_status::timeout;
   assert(queued);  // Checks for maximum number of queued threads reached.
+  (void)queued;
   // Wait on the condition variable.
   while (true) {
     bool signaled = (xTaskNotifyWait(0, 0, nullptr, delay) == pdPASS);
