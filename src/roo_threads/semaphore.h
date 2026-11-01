@@ -53,7 +53,7 @@ using binary_semaphore = roo_threads::roo_testing::binary_semaphore;
 
 }  // namespace roo
 
-#elif (defined ROO_THREADS_USE_SINGLETHREADED)
+#elif (defined ROO_THREADS_SINGLETHREADED)
 
 #include "roo_threads/impl/singlethreaded/semaphore.h"
 

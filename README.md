@@ -104,3 +104,19 @@ Arduino examples are native runnable targets in their source packages. For
 example:
 
     bazel run //examples/Counter
+
+### Bare-metal host emulation
+
+Pico host profiles select the existing single-threaded backend through
+`ROO_TESTING_RUNTIME_BARE_METAL`, before the general emulation FreeRTOS branch.
+This selection follows the runtime, not the chip: future RP2040 FreeRTOS host
+profiles retain the FreeRTOS backend. Existing ESP32 profiles are unchanged.
+The single-threaded backend supplies locks and sleep but cannot create, join
+or detach threads, wait for another thread to signal a condition, or yield to
+a scheduler. Thread-dependent examples and tests are excluded from this runtime.
+
+Use a local override of this repository with the matching roo_testing changes
+until coordinated releases are available. `backend_selection_test` exercises
+the supported public contract in Pico and ESP32 profiles;
+`rp2040_freertos_selection_probe` is compile-only evidence that Pico identity
+does not override a FreeRTOS runtime, and does not emulate Pico FreeRTOS.

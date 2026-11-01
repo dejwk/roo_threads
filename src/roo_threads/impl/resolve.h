@@ -5,7 +5,12 @@
 #endif
 
 #ifndef ROO_THREADS_SINGLETHREADED
-#if (defined ROO_TESTING)
+#if defined(ROO_TESTING) && defined(ROO_TESTING_RUNTIME_BARE_METAL) && \
+    ROO_TESTING_RUNTIME_BARE_METAL
+// Runtime identity wins over chip identity; a later Pico FreeRTOS profile
+// continues through the existing FreeRTOS path.
+#define ROO_THREADS_SINGLETHREADED
+#elif (defined ROO_TESTING)
 #define ROO_THREADS_USE_FREERTOS
 #define ROO_THREADS_ATOMIC_USE_CPPSTD
 #elif (defined ESP32) || (defined ESP_PLATFORM)
