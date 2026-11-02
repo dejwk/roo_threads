@@ -128,3 +128,9 @@ Use the matching roo_testing revision that provides this profile. The dedicated
 auto/manual integration tests verify Roo delays, joins, semaphore handoffs, and
 condition-variable timeouts against the shared emulated clock. Hardware core 1
 and task affinity are outside the emulated profile.
+
+
+Physical Arduino-Pico builds select the FreeRTOS backend when the core defines
+`__FREERTOS`; otherwise they select single-threaded support. Defining
+`ROO_THREADS_SINGLETHREADED` explicitly still takes precedence. Emulated runtime
+identity remains authoritative.

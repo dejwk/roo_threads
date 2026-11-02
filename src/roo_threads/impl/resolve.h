@@ -21,8 +21,12 @@
 #endif
 #define ROO_THREADS_ATOMIC_USE_CPPSTD
 #elif defined(ARDUINO_ARCH_RP2040)
+#if defined(__FREERTOS)
 #define ROO_THREADS_USE_FREERTOS
 #define ROO_THREADS_ATOMIC_USE_CPPSTD
+#else
+#define ROO_THREADS_SINGLETHREADED
+#endif
 #else
 #define ROO_THREADS_SINGLETHREADED
 #endif

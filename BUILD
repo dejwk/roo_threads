@@ -122,3 +122,24 @@ cc_library(
         "manual",
     ]
 ]
+
+[
+    cc_test(
+        name = "physical_pico_" + name + "_test",
+        size = "small",
+        srcs = [
+            "src/roo_threads/impl/resolve.h",
+            "test/physical_pico_selection_test.cpp",
+        ],
+        includes = ["src"],
+        local_defines = [
+            "TEST_PICO_FREERTOS=" + rtos,
+            "TEST_PICO_OVERRIDE=" + override,
+        ],
+    )
+    for name, rtos, override in [
+        ("bare_metal", "0", "0"),
+        ("freertos", "1", "0"),
+        ("override", "1", "1"),
+    ]
+]
