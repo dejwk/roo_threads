@@ -120,3 +120,11 @@ until coordinated releases are available. `backend_selection_test` exercises
 the supported public contract in Pico and ESP32 profiles;
 `rp2040_freertos_selection_probe` is compile-only evidence that Pico identity
 does not override a FreeRTOS runtime, and does not emulate Pico FreeRTOS.
+
+
+Arduino-Pico emulation also supports the real single-core FreeRTOS backend:
+`bazel test ... --config=roo_testing_arduino_rp2040_freertos`.
+Use the matching roo_testing revision that provides this profile. The dedicated
+auto/manual integration tests verify Roo delays, joins, semaphore handoffs, and
+condition-variable timeouts against the shared emulated clock. Hardware core 1
+and task affinity are outside the emulated profile.

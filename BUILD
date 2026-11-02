@@ -83,7 +83,7 @@ cc_test(
 )
 
 # Pure preprocessor contract: RP2040 identity must not force bare-metal support.
-# This deliberately does not link or claim a Pico FreeRTOS implementation.
+# Runtime integration is covered separately by pico_freertos_*_test.
 cc_library(
     name = "rp2040_freertos_selection_probe",
     srcs = ["test/rp2040_freertos_selection_probe.cpp"],
@@ -99,3 +99,26 @@ cc_library(
         "//conditions:default": [],
     }),
 )
+
+[
+    cc_test(
+        name = "pico_freertos_" + mode + "_test",
+        size = "small",
+        timeout = "short",
+        srcs = ["test/pico_freertos_test.cpp"],
+        linkstatic = True,
+        target_compatible_with = [
+            "@roo_testing//roo_testing/platforms:rp2040",
+            "@roo_testing//roo_testing/platforms:freertos",
+        ],
+        deps = [
+            ":roo_threads",
+            "@roo_testing//:arduino_gtest_main",
+            "@roo_testing//roo_testing/system:timer",
+        ] + (["@roo_testing//roo_testing/system:manual_time_mode"] if mode == "manual" else []),
+    )
+    for mode in [
+        "auto",
+        "manual",
+    ]
+]
