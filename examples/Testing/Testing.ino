@@ -1,5 +1,6 @@
 
 #include "Arduino.h"
+#include "freertos/task.h"
 #include "roo_threads.h"
 #include "roo_threads/condition_variable.h"
 #include "roo_threads/mutex.h"
@@ -16,7 +17,11 @@ void run(int tid) {
   Serial.print("): priority: ");
   Serial.print(uxTaskPriorityGet(handle));
   Serial.print(", free stack: ");
+#if INCLUDE_uxTaskGetStackHighWaterMark
   Serial.println(uxTaskGetStackHighWaterMark(handle) * sizeof(StackType_t));
+#else
+  Serial.println("unavailable in this FreeRTOS port");
+#endif
 }
 
 void setup() { Serial.begin(115200); }

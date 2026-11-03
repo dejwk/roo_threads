@@ -88,7 +88,8 @@ The library should work correctly in emulators that support FreeRTOS. In particu
 
 ## Host emulation
 
-Host builds support both Arduino and ESP-IDF through roo_testing 2.0. With
+Host builds support nine canonical profiles through roo_testing 2.5: Arduino
+and ESP-IDF on ESP32/S3/C3, SDK-only Pico, and Arduino-Pico bare-metal/FreeRTOS. With
 Bazelisk 1.21 or newer, a plain command defaults to Arduino and prints a notice:
 
     bazel test ...
@@ -109,8 +110,8 @@ example:
 
 Pico host profiles select the existing single-threaded backend through
 `ROO_TESTING_RUNTIME_BARE_METAL`, before the general emulation FreeRTOS branch.
-This selection follows the runtime, not the chip: future RP2040 FreeRTOS host
-profiles retain the FreeRTOS backend. Existing ESP32 profiles are unchanged.
+This selection follows the runtime: the Arduino-Pico FreeRTOS profile retains
+the FreeRTOS backend. Existing ESP32 profiles are unchanged.
 The single-threaded backend supplies locks and sleep but cannot create, join
 or detach threads, wait for another thread to signal a condition, or yield to
 a scheduler. Thread-dependent examples and tests are excluded from this runtime.
@@ -119,7 +120,8 @@ Use a local override of this repository with the matching roo_testing changes
 until coordinated releases are available. `backend_selection_test` exercises
 the supported public contract in Pico and ESP32 profiles;
 `rp2040_freertos_selection_probe` is compile-only evidence that Pico identity
-does not override a FreeRTOS runtime, and does not emulate Pico FreeRTOS.
+does not override a FreeRTOS runtime. The dedicated runtime tests below supply
+the actual FreeRTOS execution coverage.
 
 
 Arduino-Pico emulation also supports the real single-core FreeRTOS backend:

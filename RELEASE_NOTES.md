@@ -1,3 +1,11 @@
+# roo_threads 1.3.0
+
+- Select physical Arduino-Pico bare-metal or FreeRTOS using the core runtime flag; preserve explicit overrides.
+- Add focused physical runtime selection tests and validate the existing FreeRTOS contracts on all nine host profiles.
+- Vendor canonical profile tooling and align roo_testing 2.5.0 / roo_time 2.1.0 dependencies.
+
+---
+
 # roo_threads 1.2.9
 
 - Upgrade `roo_time` to 2.0.1 in Bazel and require ≥2.0.1 in PlatformIO.

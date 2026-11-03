@@ -23,7 +23,11 @@ void run(int tid) {
     Serial.print("): priority: ");
     Serial.print(uxTaskPriorityGet(handle));
     Serial.print(", free stack: ");
+#if INCLUDE_uxTaskGetStackHighWaterMark
     Serial.println(uxTaskGetStackHighWaterMark(handle) * sizeof(StackType_t));
+#else
+    Serial.println("unavailable in this FreeRTOS port");
+#endif
   }
 }
 
