@@ -1,8 +1,11 @@
 # roo_threads 1.3.0
 
-- Select physical Arduino-Pico bare-metal or FreeRTOS using the core runtime flag; preserve explicit overrides.
-- Add focused physical runtime selection tests and validate the existing FreeRTOS contracts on all nine host profiles.
-- Vendor canonical profile tooling and align roo_testing 2.5.0 / roo_time 2.1.0 dependencies.
+- Fix physical Arduino-Pico backend selection: use FreeRTOS when `__FREERTOS` is defined and single-threaded support otherwise, preserving explicit overrides.
+- Add Pico SDK and Arduino-Pico host emulation with runtime-aware backend selection, including single-core FreeRTOS support. Fix single-threaded semaphore aliases.
+- Expand canonical Bazel tooling and CI to nine host profiles covering ESP32, ESP32-S3, ESP32-C3, and RP2040. Add backend-selection tests and Pico FreeRTOS synchronization tests with automatic/manual clocks; validate normal and AddressSanitizer builds.
+- Restrict thread-creating examples to FreeRTOS profiles and handle ports without stack-watermark diagnostics.
+- Eliminate unused-variable warnings in FreeRTOS condition-variable release builds.
+- Upgrade `roo_testing` to 2.5.0 and `roo_time` to 2.1.0; raise the PlatformIO `roo_time` minimum to 2.1.0.
 
 ---
 
