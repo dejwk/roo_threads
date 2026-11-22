@@ -43,7 +43,8 @@
 #undef ROO_THREADS_INTERNAL_ISR_PICO_CANDIDATE
 #endif
 
-/// Reports whether this build provides roo::isr_queue and roo::isr_event.
+/// Reports whether this build provides ISR queues, events, and critical
+/// sections.
 #if defined(ROO_THREADS_INTERNAL_ISR_FREERTOS) || \
     defined(ROO_THREADS_INTERNAL_ISR_PICO)
 #define ROO_THREADS_HAS_ISR_SUPPORT 1

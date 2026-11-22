@@ -103,8 +103,11 @@ verifying placement in the linked firmware.
 
 Provide a backend helper for short critical sections that exclude interrupt
 and task or loop access to the same data, including access from the other
-core on supported multicore builds. Keep the helper in the implementation
-headers. The scheduler uses it for its own fixed slots, which must stay
+core on supported multicore builds. Expose it as `roo::isr_critical_section`
+and `roo::isr_lock_guard` in
+[`roo_threads/isr_critical_section.h`](../src/roo_threads/isr_critical_section.h).
+The guard takes the calling context and restores interrupt state at scope
+exit. The scheduler uses it for its own fixed slots, which must stay
 occupied while work is eligible for dispatch. The public FIFO remains
 available for applications that consume records in order.
 

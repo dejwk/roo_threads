@@ -16,7 +16,7 @@
 #else
 #include <cstring>
 
-#include "roo_threads/impl/isr_critical_section.h"
+#include "roo_threads/isr_critical_section.h"
 #endif
 
 namespace roo {
@@ -64,7 +64,7 @@ class isr_queue {
     roo_threads::internal::YieldFromIsr(task_woken);
     return accepted;
 #else
-    using Guard = roo_threads::internal::IsrLockGuard;
+    using Guard = isr_lock_guard;
     Guard lock(lock_, Guard::Context::kIsr);
     if (count_ == Capacity) return false;
     const std::size_t to_end = Capacity - head_;
@@ -81,7 +81,7 @@ class isr_queue {
 #ifdef ROO_THREADS_INTERNAL_ISR_FREERTOS
     return xQueueReceive(queue_, std::addressof(value), 0) == pdTRUE;
 #else
-    roo_threads::internal::IsrLockGuard lock(lock_);
+    isr_lock_guard lock(lock_);
     if (count_ == 0) return false;
     std::memcpy(std::addressof(value), records_ + head_ * sizeof(T), sizeof(T));
     if (++head_ == Capacity) head_ = 0;
@@ -95,7 +95,7 @@ class isr_queue {
 #ifdef ROO_THREADS_INTERNAL_ISR_FREERTOS
     return uxQueueMessagesWaiting(queue_);
 #else
-    roo_threads::internal::IsrLockGuard lock(lock_);
+    isr_lock_guard lock(lock_);
     return count_;
 #endif
   }
@@ -106,7 +106,7 @@ class isr_queue {
   StaticQueue_t storage_;
   const QueueHandle_t queue_;
 #else
-  mutable roo_threads::internal::IsrCriticalSection lock_;
+  mutable isr_critical_section lock_;
   std::size_t head_ = 0;
   std::size_t count_ = 0;
 #endif

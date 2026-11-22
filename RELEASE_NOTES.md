@@ -1,6 +1,7 @@
 # roo_threads 1.4.0
 
 - Added fixed-capacity ISR queues and single-consumer wake events for supported FreeRTOS and bare-metal RP2040 builds.
+- Exposed ISR-safe critical sections and their scoped guards for libraries that share custom storage with interrupt handlers.
 - Added ISR capability detection independent of the ordinary thread backend and documented interrupt-priority and memory-placement requirements.
 
 ---

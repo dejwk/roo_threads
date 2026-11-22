@@ -52,7 +52,7 @@ isr_event::~isr_event() = default;
 
 void isr_event::signal() noexcept {
   {
-    roo_threads::internal::IsrLockGuard lock(lock_);
+    isr_lock_guard lock(lock_);
     pending_ = true;
   }
   __sev();
@@ -64,7 +64,7 @@ void isr_event::signal_from_isr() noexcept {
 }
 
 bool isr_event::takeSignal() noexcept {
-  roo_threads::internal::IsrLockGuard lock(lock_);
+  isr_lock_guard lock(lock_);
   const bool pending = pending_;
   pending_ = false;
   return pending;

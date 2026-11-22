@@ -58,6 +58,12 @@ queue reports saturation and the event coalesces signals. Drain work and
 recheck predicates after each wait. Construct both objects before enabling
 interrupts and synchronize with all users before destroying them.
 
+For custom storage shared with an ISR, use
+[`roo::isr_critical_section` and `roo::isr_lock_guard`](src/roo_threads/isr_critical_section.h).
+Use the guard's default context in a task or loop and pass
+`roo::isr_lock_guard::Context::kIsr` in an interrupt handler. Release
+the guard before waking a consumer.
+
 The ISR backend is available on supported ESP32 and Arduino-Pico FreeRTOS
 builds and bare-metal RP2040 with Pico SDK 2.1 or newer and the default
 alarm pool enabled. A native bare-metal SDK target must define

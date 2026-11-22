@@ -10,11 +10,22 @@
 #include <hardware/sync.h>
 #endif
 
-namespace roo_threads {
-namespace internal {
+namespace roo {
 
-class IsrCriticalSection {
+/// Protects shared data accessed from task, loop, and interrupt contexts.
+/// Construct before enabling interrupts that use it. Stop its users before
+/// destroying it. Acquire it with isr_lock_guard for the calling context.
+class isr_critical_section {
  public:
+  /// Creates a critical section that is ready to use.
+  isr_critical_section() noexcept = default;
+
+  isr_critical_section(const isr_critical_section&) = delete;
+  isr_critical_section& operator=(const isr_critical_section&) = delete;
+
+ private:
+  friend class isr_lock_guard;
+
 #if defined(ROO_THREADS_INTERNAL_ISR_PICO)
   using State = uint32_t;
 
@@ -65,7 +76,6 @@ class IsrCriticalSection {
 
   void unlockFromIsr(State) noexcept { portEXIT_CRITICAL_ISR(&mux_); }
 
- private:
   portMUX_TYPE mux_ = portMUX_INITIALIZER_UNLOCKED;
 #else
   using State = decltype(taskENTER_CRITICAL_FROM_ISR());
@@ -85,18 +95,29 @@ class IsrCriticalSection {
 #endif
 };
 
-// Carries the local IRQ state in the guard rather than the shared lock.
-class IsrLockGuard {
+/// Holds an ISR-safe critical section for the lifetime of the guard.
+/// Keep the scope short. Release the guard before waiting, signaling a wake
+/// event, or acquiring another ISR guard. Some ports share one underlying
+/// lock across critical-section objects.
+class isr_lock_guard {
  public:
-  enum class Context { kTask, kIsr };
+  /// Identifies the context entering the critical section.
+  enum class Context {
+    kTask,  ///< Ordinary task or application loop.
+    kIsr,   ///< Interrupt handler.
+  };
 
-  explicit IsrLockGuard(IsrCriticalSection& lock,
-                        Context context = Context::kTask) noexcept
+  /// Acquires @p lock in @p context. On FreeRTOS, an ISR must run at a
+  /// priority that permits kernel API calls. On ESP32 with cache disabled,
+  /// the entire call path and all accessed data must be in internal memory.
+  explicit isr_lock_guard(isr_critical_section& lock,
+                          Context context = Context::kTask) noexcept
       : lock_(lock),
         context_(context),
         state_(context == Context::kIsr ? lock.lockFromIsr() : lock.lock()) {}
 
-  ~IsrLockGuard() {
+  /// Releases the critical section and restores the caller's interrupt state.
+  ~isr_lock_guard() {
     if (context_ == Context::kIsr) {
       lock_.unlockFromIsr(state_);
     } else {
@@ -104,16 +125,15 @@ class IsrLockGuard {
     }
   }
 
-  IsrLockGuard(const IsrLockGuard&) = delete;
-  IsrLockGuard& operator=(const IsrLockGuard&) = delete;
+  isr_lock_guard(const isr_lock_guard&) = delete;
+  isr_lock_guard& operator=(const isr_lock_guard&) = delete;
 
  private:
-  IsrCriticalSection& lock_;
+  isr_critical_section& lock_;
   Context context_;
-  IsrCriticalSection::State state_;
+  isr_critical_section::State state_;
 };
 
-}  // namespace internal
-}  // namespace roo_threads
+}  // namespace roo
 
 #endif

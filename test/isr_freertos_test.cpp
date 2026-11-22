@@ -4,7 +4,7 @@
 #include "gtest/gtest.h"
 #include "roo_testing/interrupts/interrupt_controller.h"
 #include "roo_threads.h"
-#include "roo_threads/impl/isr_critical_section.h"
+#include "roo_threads/isr_critical_section.h"
 
 namespace {
 
@@ -19,7 +19,7 @@ struct Record {
 struct InterruptState {
   roo::isr_queue<Record, 3> queue;
   roo::isr_event event;
-  roo_threads::internal::IsrCriticalSection lock;
+  roo::isr_critical_section lock;
   volatile sig_atomic_t posted = 0;
   volatile sig_atomic_t rejected = 0;
 };
@@ -27,7 +27,7 @@ struct InterruptState {
 void PostRecords(void* argument) {
   auto& state = *static_cast<InterruptState*>(argument);
   {
-    using Guard = roo_threads::internal::IsrLockGuard;
+    using Guard = roo::isr_lock_guard;
     Guard lock(state.lock, Guard::Context::kIsr);
     state.posted = xPortInIsrContext() == pdTRUE ? 1 : -1;
   }
@@ -64,7 +64,7 @@ TEST(IsrFreeRtos, WakesAndDrainsRecords) {
   producer.join();
   EXPECT_TRUE(roo_testing::unregisterInterrupt(handle));
   {
-    roo_threads::internal::IsrLockGuard lock(state.lock);
+    roo::isr_lock_guard lock(state.lock);
     EXPECT_EQ(state.posted, 1);
   }
   EXPECT_EQ(state.rejected, 1);
@@ -78,6 +78,29 @@ TEST(IsrFreeRtos, WakesAndDrainsRecords) {
   EXPECT_FALSE(state.queue.try_pop(record));
   EXPECT_EQ(record.value, 3u);
   EXPECT_EQ(state.queue.size(), 0u);
+}
+
+// Verifies the public task guard defers an interrupt until its scope ends.
+TEST(IsrFreeRtos, TaskGuardDefersIsrDelivery) {
+  InterruptState state;
+  const roo_testing::InterruptHandle handle = Register(state);
+  ASSERT_TRUE(handle.isValid());
+
+  bool pending;
+  sig_atomic_t posted_while_guarded;
+  {
+    roo::isr_lock_guard guard(state.lock);
+    pending = roo_testing::setInterruptPending(handle);
+    posted_while_guarded = state.posted;
+  }
+
+  const roo_time::Uptime deadline =
+      roo_time::Uptime::Now() + roo_time::Seconds(2);
+  state.event.wait_until(deadline);
+  EXPECT_TRUE(roo_testing::unregisterInterrupt(handle));
+  EXPECT_TRUE(pending);
+  EXPECT_EQ(posted_while_guarded, 0);
+  EXPECT_EQ(state.posted, 1);
 }
 
 // Verifies a signal before the wait is retained, repeated signals coalesce,

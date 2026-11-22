@@ -7,7 +7,7 @@
 #ifdef ROO_THREADS_INTERNAL_ISR_FREERTOS
 #include <freertos/semphr.h>
 #else
-#include "roo_threads/impl/isr_critical_section.h"
+#include "roo_threads/isr_critical_section.h"
 #endif
 
 #include "roo_time.h"
@@ -50,7 +50,7 @@ class isr_event {
   StaticSemaphore_t storage_;
   const SemaphoreHandle_t semaphore_;
 #else
-  roo_threads::internal::IsrCriticalSection lock_;
+  isr_critical_section lock_;
   bool pending_ = false;
 
   bool takeSignal() noexcept;
