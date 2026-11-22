@@ -1,3 +1,11 @@
+# roo_threads 1.3.1
+
+- Upgraded `roo_testing` to 2.6.0 in Bazel and CI, and switched CI to the canonical `arduino_esp32` and `idf_esp32` profile names.
+- Upgraded `roo_time` to 2.2.0 in Bazel and raised the PlatformIO minimum to 2.2.0.
+- Updated the README with FreeRTOS SMP setup for Arduino-Pico in the Arduino IDE and PlatformIO, and clarified backend selection and Pico host emulation.
+
+---
+
 # roo_threads 1.3.0
 
 - Fix physical Arduino-Pico backend selection: use FreeRTOS when `__FREERTOS` is defined and single-threaded support otherwise, preserving explicit overrides.
