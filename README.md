@@ -55,27 +55,31 @@ No special configuration is required; the library works out-of-the-box.
 
 The library can be mixed with the concurrency utilities from the standard library (e.g. `<atomic>`, `<mutex>`, etc.), and with native FreeRTOS APIs (e.g. `xTaskCreate`, etc.), since it uses the same underlying primitives.
 
-## Rasbperry Pi Pico
+## Raspberry Pi Pico
 
-You must install the FreeRTOS OS in order to be able to use this library.
+On RP2040 boards using Arduino-Pico, enable FreeRTOS SMP to create threads.
+The core defines `__FREERTOS` when FreeRTOS is enabled, and `roo_threads`
+selects its FreeRTOS backend. With FreeRTOS disabled, the library selects
+the single-threaded backend. Define `ROO_THREADS_SINGLETHREADED` to select
+that backend explicitly.
 
-For Arduino IDE, see [this video](https://www.youtube.com/watch?v=JfVnUlGTBi8).
+In the Arduino IDE, include `<FreeRTOS.h>` in your sketch and select
+**Tools → Operating System → FreeRTOS SMP**.
+[Arduino-Pico FreeRTOS documentation](https://arduino-pico.readthedocs.io/en/stable/freertos.html#enabling-freertos)
 
-For VS Code with pioarduino, use these settings in the `platformio.ini`:
+In PlatformIO, enable FreeRTOS in `platformio.ini`.
 
-```
+```ini
 [env:pico]
 platform = https://github.com/maxgerhardt/platform-raspberrypi.git
 board = pico
 framework = arduino
 board_build.core = earlephilhower
-
-build_flags =
-    -D __FREERTOS=1
-
+build_flags = -DPIO_FRAMEWORK_ARDUINO_ENABLE_FREERTOS
 ```
 
-The library can be mixed with the native FreeRTOS APIs (e.g. xTaskCreate, etc.), since it uses the same underlying primitives.
+The FreeRTOS backend can be used alongside native FreeRTOS APIs such as
+`xTaskCreate`.
 
 ## Compatibility with single-threaded platforms
 
@@ -84,13 +88,16 @@ is mocked as a no-op. It allows you to implement thread-safe libraries that stil
 
 ## Testing
 
-The library should work correctly in emulators that support FreeRTOS. In particular, it works correctly with the [http://github.com/dejwk/roo_testing](roo_testing) environment, allowing to unit-test and emulate multi-threaded ESP32 programs on Linux.
+Use `roo_testing` to emulate and unit-test multithreaded ESP32 programs on
+Linux. [roo_testing repository](https://github.com/dejwk/roo_testing)
 
 ## Host emulation
 
-Host builds support nine canonical profiles through roo_testing 2.5: Arduino
-and ESP-IDF on ESP32/S3/C3, SDK-only Pico, and Arduino-Pico bare-metal/FreeRTOS. With
-Bazelisk 1.21 or newer, a plain command defaults to Arduino and prints a notice:
+Host builds support nine profiles covering Arduino and ESP-IDF on ESP32,
+ESP32-S3, and ESP32-C3, plus Pico SDK and Arduino-Pico with and without
+FreeRTOS. CI uses the shared workflow from `roo_testing` 2.6. With Bazelisk
+1.21 or newer, a plain command defaults to Arduino on ESP32 and prints a
+notice.
 
     bazel test ...
     bazel test ... --config=asan
@@ -108,31 +115,18 @@ example:
 
 ### Bare-metal host emulation
 
-Pico host profiles select the existing single-threaded backend through
-`ROO_TESTING_RUNTIME_BARE_METAL`, before the general emulation FreeRTOS branch.
-This selection follows the runtime: the Arduino-Pico FreeRTOS profile retains
-the FreeRTOS backend. Existing ESP32 profiles are unchanged.
-The single-threaded backend supplies locks and sleep but cannot create, join
-or detach threads, wait for another thread to signal a condition, or yield to
-a scheduler. Thread-dependent examples and tests are excluded from this runtime.
+The Pico SDK and bare-metal Arduino-Pico profiles select the
+single-threaded backend through `ROO_TESTING_RUNTIME_BARE_METAL`. This backend
+provides locks and sleep. Thread-dependent examples and tests are excluded
+from these profiles. `backend_selection_test` covers backend selection on
+Pico and ESP32.
 
-Use a local override of this repository with the matching roo_testing changes
-until coordinated releases are available. `backend_selection_test` exercises
-the supported public contract in Pico and ESP32 profiles;
-`rp2040_freertos_selection_probe` is compile-only evidence that Pico identity
-does not override a FreeRTOS runtime. The dedicated runtime tests below supply
-the actual FreeRTOS execution coverage.
+### Arduino-Pico FreeRTOS emulation
 
-
-Arduino-Pico emulation also supports the real single-core FreeRTOS backend:
+Run the single-core FreeRTOS profile with
 `bazel test ... --config=roo_testing_arduino_rp2040_freertos`.
-Use the matching roo_testing revision that provides this profile. The dedicated
-auto/manual integration tests verify Roo delays, joins, semaphore handoffs, and
-condition-variable timeouts against the shared emulated clock. Hardware core 1
-and task affinity are outside the emulated profile.
-
-
-Physical Arduino-Pico builds select the FreeRTOS backend when the core defines
-`__FREERTOS`; otherwise they select single-threaded support. Defining
-`ROO_THREADS_SINGLETHREADED` explicitly still takes precedence. Emulated runtime
-identity remains authoritative.
+`rp2040_freertos_selection_probe` checks at compile time that this runtime
+selects the FreeRTOS backend. Integration tests use automatic and manual
+clock modes to verify delays, joins, semaphore handoffs, and
+condition-variable timeouts. Hardware core 1 and task affinity are outside
+the emulated profile.
