@@ -143,3 +143,15 @@ cc_library(
         ("override", "1", "1"),
     ]
 ]
+
+cc_test(
+    name = "isr_freertos_test",
+    size = "small",
+    srcs = ["test/isr_freertos_test.cpp"],
+    linkstatic = True,
+    target_compatible_with = ["@roo_testing//roo_testing/platforms:esp_idf"],
+    deps = [
+        ":roo_threads",
+        "@roo_testing//roo_testing/interrupts:interrupt_controller",
+    ] + TEST_MAIN_DEPS,
+)

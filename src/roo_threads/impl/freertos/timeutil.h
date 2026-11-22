@@ -1,12 +1,7 @@
 #pragma once
 
-#include "roo_threads/impl/resolve.h"
-
-#ifdef ROO_THREADS_USE_FREERTOS
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "roo_threads/impl/freertos/mutex.h"
 #include "roo_time.h"
 
 namespace roo_threads {
@@ -51,5 +46,3 @@ inline roo_time::Uptime CalculateDeadlineFromDuration(
 
 }  // namespace freertos
 }  // namespace roo_threads
-
-#endif  // ROO_THREADS_USE_FREERTOS
