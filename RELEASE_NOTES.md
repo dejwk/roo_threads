@@ -1,8 +1,10 @@
 # roo_threads 1.4.0
 
-- Added fixed-capacity ISR queues and single-consumer wake events for supported FreeRTOS and bare-metal RP2040 builds.
-- Exposed ISR-safe critical sections and their scoped guards for libraries that share custom storage with interrupt handlers.
-- Added ISR capability detection independent of the ordinary thread backend and documented interrupt-priority and memory-placement requirements.
+- Added `roo::isr_queue`, a fixed-capacity FIFO for interrupt records, and `roo::isr_event`, a single-consumer wake event with deadline-based waits. Both support ESP32 and Arduino-Pico FreeRTOS builds with static allocation, plus bare-metal RP2040 with Pico SDK 2.1 or later and the default alarm pool enabled.
+- Exposed `roo::isr_critical_section` and the scoped `roo::isr_lock_guard` to protect custom storage shared by interrupt handlers and task or loop code.
+- Added `ROO_THREADS_HAS_ISR_SUPPORT` to detect ISR support independently of the thread backend. Documented interrupt-priority and memory-placement requirements, added a GPIO handoff example, and added FreeRTOS and RP2040 emulator tests.
+- Updated CI to `roo_testing` 2.7.0 and declared the same version in Bazel. Bazel retains a Git override for bare-metal ISR emulation.
+- Upgraded `roo_time` to 2.2.1 in Bazel and raised the PlatformIO minimum to 2.2.1.
 
 ---
 
