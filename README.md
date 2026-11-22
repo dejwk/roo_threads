@@ -49,6 +49,24 @@ extern "C" void app_main() {
 
 For more details, see attached examples.
 
+## Interrupt handoff
+
+When `ROO_THREADS_HAS_ISR_SUPPORT` is `1`, use
+[`roo::isr_queue`](src/roo_threads/isr_queue.h) to retain ISR records and
+[`roo::isr_event`](src/roo_threads/isr_event.h) to wake a task or loop. The
+queue reports saturation and the event coalesces signals. Drain work and
+recheck predicates after each wait. Construct both objects before enabling
+interrupts and synchronize with all users before destroying them.
+
+The ISR backend is available on supported ESP32 and Arduino-Pico FreeRTOS
+builds and bare-metal RP2040 with Pico SDK 2.1 or newer and the default
+alarm pool enabled. A native bare-metal SDK target must define
+`ROO_THREADS_PICO_SDK_BARE_METAL=1` for the library and its callers and link
+the SDK's `pico_time` and `hardware_sync` targets. The
+[ISR calling requirements](docs/isr-queue-and-wake-event.md#isr-calling-requirements)
+cover interrupt priority and cache-disabled ESP32 handlers.
+[GPIO example](examples/IsrQueue/IsrQueue.ino)
+
 ## ESP32 family
 
 No special configuration is required; the library works out-of-the-box.

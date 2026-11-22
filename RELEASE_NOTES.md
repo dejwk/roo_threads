@@ -1,3 +1,10 @@
+# roo_threads 1.4.0
+
+- Added fixed-capacity ISR queues and single-consumer wake events for supported FreeRTOS and bare-metal RP2040 builds.
+- Added ISR capability detection independent of the ordinary thread backend and documented interrupt-priority and memory-placement requirements.
+
+---
+
 # roo_threads 1.3.1
 
 - Upgraded `roo_testing` to 2.6.0 in Bazel and CI, and switched CI to the canonical `arduino_esp32` and `idf_esp32` profile names.

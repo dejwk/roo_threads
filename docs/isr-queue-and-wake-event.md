@@ -89,6 +89,16 @@ the corresponding critical-section helper are available.
 · [roo_testing runtime contract](https://github.com/dejwk/roo_testing/blob/main/roo_testing/frameworks/environment/runtime_profile_contract.c)
 · [Native Pico SDK FreeRTOS build definitions](https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/main/portable/ThirdParty/GCC/RP2040/library.cmake)
 
+### ISR calling requirements
+
+On FreeRTOS, the caller's interrupt priority must permit kernel API calls.
+On ESP32, a cache-disabled handler can use these APIs only when the entire
+call path and all accessed data reside in internal memory. This includes the
+backend, the queue or event object, and any data copied by the ISR. The
+capability macro reports backend availability. The caller is responsible for
+verifying placement in the linked firmware.
+[ESP-IDF interrupt allocation](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/intr_alloc.html#iram-safe-interrupt-handlers)
+
 ### Critical-section helper
 
 Provide a backend helper for short critical sections that exclude interrupt
@@ -101,9 +111,15 @@ available for applications that consume records in order.
 On ESP-IDF and Arduino-ESP32, use the port's task and ISR critical-section
 operations with one mux per protected object. On the Arduino-Pico FreeRTOS
 port and the FreeRTOS emulator, use the kernel's task and ISR critical-section
-operations. Use an SDK striped spin lock with local IRQ save and restore on
-bare-metal RP2040, and IRQ save and restore on single-core emulated Pico.
-Keep critical sections short and release them before signaling or waiting.
+operations. On single-core emulated Pico, save and restore the local IRQ mask.
+
+On bare-metal RP2040, use the SDK's shared stripe at
+`PICO_SPINLOCK_ID_STRIPED_FIRST`. Get the lock with `spin_lock_instance()`
+and acquire and release it with local IRQ save and restore. Using a fixed
+stripe lets objects be constructed independently on either core without
+touching the SDK's round-robin allocator or storing a lock per object.
+Keep critical sections short and release them before signaling, waiting,
+or entering another critical section that uses the shared stripe.
 [Companion scheduler storage design](../../roo_scheduler/docs/isr-task-scheduling.md#submission-and-storage)
 
 ### Queue semantics and storage
@@ -124,18 +140,16 @@ for FreeRTOS configurations that provide it.
 
 On Pico, use a ring with a read index and count. Use the critical-section
 helper for one record copy and its index update, or for one count read.
-Striped locks let instances share the SDK's limited hardware locks. Release
-the queue lock before signaling the event.
+Release the queue lock before signaling the event.
 [FreeRTOS ISR queue API](https://www.freertos.org/Documentation/02-Kernel/04-API-references/06-Queues/04-xQueueSendFromISR)
 · [Pico SDK synchronization](https://www.raspberrypi.com/documentation/pico-sdk/hardware.html#hardware_sync)
 
 A queue with capacity `N` and record size `S` bytes reserves `N * S` bytes for
 its records even when empty. It also holds native queue metadata on FreeRTOS
-or two indices and a lock reference on Pico. Each push or pop copies one
-record and does constant additional queue work. Copy cost grows with `S`.
-Pico multicore contention can add a short spin while another core holds the
-lock. The design provides a bounded amount of work per call, without claiming
-a wait-free latency bound.
+or two indices on Pico. Each push or pop copies one record and does constant
+additional queue work. Copy cost grows with `S`. On RP2040, any operation
+using the shared stripe can spin while the other core holds it. The amount
+of queue work per call is bounded.
 
 ### Wake event semantics
 
@@ -185,6 +199,7 @@ class isr_queue {
   isr_queue& operator=(const isr_queue&) = delete;
 
   /// Copies value into the queue from an ISR. Returns false when full.
+  /// Follow the ISR calling requirements for priority and memory placement.
   bool try_push_from_isr(const T& value) noexcept;
 
   /// Copies and removes the oldest record in consumer context.
@@ -210,6 +225,7 @@ class isr_event {
   void signal() noexcept;
 
   /// Records a wakeup from an ISR and requests a port yield when needed.
+  /// Follow the ISR calling requirements for priority and memory placement.
   void signal_from_isr() noexcept;
 
   /// Consumes a pending wakeup or waits once for an event.
@@ -219,7 +235,7 @@ class isr_event {
   void wait_until(roo_time::Uptime deadline) noexcept;
 
  private:
-  // Native static semaphore, or a pending bit and Pico lock reference.
+  // Native static semaphore, or a pending bit on Pico.
 };
 
 }  // namespace roo
@@ -239,10 +255,10 @@ Follow the repository's [C++ authoring instructions](../.github/instructions/gen
 
 Add the primitive headers, capability selector, and FreeRTOS implementations,
 including the critical-section helper. Include a producer and consumer
-example and document supported contexts. Validate static storage, FIFO and
-saturation, signal retention before wait, timeouts, and the port-specific
-yield path with an emulated interrupt. Compile-check ESP32 with the C++
-thread backend and Arduino-Pico with FreeRTOS.
+example. Document ISR calling requirements alongside the public declarations.
+Validate static storage, FIFO and saturation, signal retention before wait,
+timeouts, and the port-specific yield path with an emulated interrupt.
+Compile-check ESP32 with the C++ thread backend and Arduino-Pico with FreeRTOS.
 
 ### Phase 2. Bare-metal RP2040 queue and wake event
 
@@ -267,12 +283,6 @@ SDK and Arduino-Pico bare-metal builds. Use a physical Pico for cross-core
 behavior, which the bare-metal emulator models on a single core.
 
 ## Caveats
-
-The port's rules govern which ISRs can call the backend. FreeRTOS ISRs must
-be allowed to call kernel APIs at their interrupt priority. On ESP32,
-cache-disabled handlers require the full signal and queue call paths and
-their accessed data to satisfy ESP-IDF's internal-memory rules.
-[ESP-IDF interrupt allocation](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/intr_alloc.html)
 
 On RP2040, a full default alarm pool can make a timed wait return early.
 Callers recheck their work and deadline predicates after the return.

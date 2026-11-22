@@ -19,6 +19,8 @@ static_assert(
 #endif
 #endif
 
+static_assert(ROO_THREADS_HAS_ISR_SUPPORT == 1);
+
 // Verifies the selected public mutex, lock and clock APIs work without spawning
 // threads; this is the supported bare-metal client contract.
 TEST(BackendSelection, LockAndSleep) {

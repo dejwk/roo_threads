@@ -38,6 +38,9 @@ cc_library(
         "@roo_testing//roo_testing/platforms:is_arduino": [
             "@roo_testing//:arduino",
         ],
+        "@roo_testing//roo_testing/platforms:is_pico": [
+            "@roo_testing//:pico_sdk",
+        ],
         "//conditions:default": [],
     }),
 )
@@ -155,3 +158,49 @@ cc_test(
         "@roo_testing//roo_testing/interrupts:interrupt_controller",
     ] + TEST_MAIN_DEPS,
 )
+
+cc_test(
+    name = "isr_pico_test",
+    size = "small",
+    srcs = ["test/isr_pico_test.cpp"],
+    linkstatic = True,
+    target_compatible_with = [
+        "@roo_testing//roo_testing/platforms:bare_metal",
+        "@roo_testing//roo_testing/platforms:pico_sdk",
+        "@roo_testing//roo_testing/platforms:rp2040",
+    ],
+    deps = [
+        ":roo_threads",
+        "@roo_testing//:pico_sdk",
+        "@roo_testing//roo_testing/system:manual_time_mode",
+    ] + TEST_MAIN_DEPS,
+)
+
+[
+    cc_test(
+        name = "isr_selection_" + name + "_test",
+        size = "small",
+        srcs = [
+            "src/roo_threads/isr_support.h",
+            "test/isr_selection_probe.cpp",
+            "test/pico_isr_probe/pico/time.h",
+        ],
+        includes = ["src", "test/pico_isr_probe"],
+        local_defines = [
+            "TEST_RP2040=" + rp2040,
+            "TEST_SDK_MINOR=" + sdk_minor,
+            "TEST_ALARM_POOL_DISABLED=" + pool_disabled,
+            "TEST_FREERTOS=" + freertos,
+            "TEST_BARE_METAL=" + bare_metal,
+            "TEST_ISR_SUPPORT=" + expected,
+        ],
+    )
+    for name, rp2040, sdk_minor, pool_disabled, freertos, bare_metal, expected in [
+        ("pico_sdk", "1", "1", "0", "0", "1", "1"),
+        ("pico_sdk_2_0", "1", "0", "0", "0", "1", "0"),
+        ("default_pool_disabled", "1", "1", "1", "0", "1", "0"),
+        ("rp2350", "0", "1", "0", "0", "1", "0"),
+        ("native_freertos", "1", "1", "0", "1", "1", "0"),
+        ("no_runtime_opt_in", "1", "1", "0", "0", "0", "0"),
+    ]
+]

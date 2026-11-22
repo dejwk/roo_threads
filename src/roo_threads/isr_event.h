@@ -2,9 +2,13 @@
 
 #include "roo_threads/isr_support.h"
 
-#ifdef ROO_THREADS_INTERNAL_ISR_FREERTOS
+#if ROO_THREADS_HAS_ISR_SUPPORT
 
+#ifdef ROO_THREADS_INTERNAL_ISR_FREERTOS
 #include <freertos/semphr.h>
+#else
+#include "roo_threads/impl/isr_critical_section.h"
+#endif
 
 #include "roo_time.h"
 
@@ -42,8 +46,15 @@ class isr_event {
   void wait_until(roo_time::Uptime deadline) noexcept;
 
  private:
+#ifdef ROO_THREADS_INTERNAL_ISR_FREERTOS
   StaticSemaphore_t storage_;
   const SemaphoreHandle_t semaphore_;
+#else
+  roo_threads::internal::IsrCriticalSection lock_;
+  bool pending_ = false;
+
+  bool takeSignal() noexcept;
+#endif
 };
 
 }  // namespace roo

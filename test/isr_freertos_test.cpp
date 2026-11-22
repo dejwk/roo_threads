@@ -11,6 +11,9 @@ namespace {
 struct Record {
   uint32_t value;
   uint32_t check;
+
+  Record* operator&() = delete;
+  const Record* operator&() const = delete;
 };
 
 struct InterruptState {
@@ -24,7 +27,8 @@ struct InterruptState {
 void PostRecords(void* argument) {
   auto& state = *static_cast<InterruptState*>(argument);
   {
-    roo_threads::internal::IsrLockGuard lock(state.lock);
+    using Guard = roo_threads::internal::IsrLockGuard;
+    Guard lock(state.lock, Guard::Context::kIsr);
     state.posted = xPortInIsrContext() == pdTRUE ? 1 : -1;
   }
   for (uint32_t v = 1; v <= 4; ++v) {
@@ -60,7 +64,7 @@ TEST(IsrFreeRtos, WakesAndDrainsRecords) {
   producer.join();
   EXPECT_TRUE(roo_testing::unregisterInterrupt(handle));
   {
-    roo::lock_guard<roo_threads::internal::IsrCriticalSection> lock(state.lock);
+    roo_threads::internal::IsrLockGuard lock(state.lock);
     EXPECT_EQ(state.posted, 1);
   }
   EXPECT_EQ(state.rejected, 1);
